@@ -5,3 +5,6 @@ c:\users\łukasz\documents\visual studio 2010\Projects\TO_1\TO_1\obj\x86\Debug\T
 c:\users\łukasz\documents\visual studio 2010\Projects\TO_1\TO_1\obj\x86\Debug\TO_1.pdb
 D:\Studia\9sem\TO\TOPProject\TO_1\TO_1\obj\x86\Debug\TO_1.exe
 D:\Studia\9sem\TO\TOPProject\TO_1\TO_1\obj\x86\Debug\TO_1.pdb
+D:\Studia\9sem\TO\TOPProject\TO_1\TO_1\bin\Debug\TO_1.exe
+D:\Studia\9sem\TO\TOPProject\TO_1\TO_1\bin\Debug\TO_1.pdb
+D:\Studia\9sem\TO\TOPProject\TO_1\TO_1\obj\x86\Debug\ResolveAssemblyReference.cache

@@ -26,10 +26,26 @@ namespace TspImplementationPart1
                     instance.AddPoint(input.Split(';'));
                 }
                 Console.WriteLine("The end of the stream has been reached.");
-
-                instance.Calculate();
-                Console.ReadLine();
             }
+
+            instance.Calculate();
+
+            StreamWriter res = new StreamWriter("res.txt");
+            StreamWriter sol = new StreamWriter(@"D:\sol.txt");
+
+            long distance = 0;
+            foreach (var item in instance.groups)
+            {
+                item.Calculate(instance.numberOfPoints/4);
+                distance += item.distance;
+                item.WriteSolution(sol);
+                sol.WriteLine();
+            }
+            res.WriteLine(distance.ToString());
+            sol.Close();
+            res.Close();
+
+            //Console.ReadLine();
 
         }
     }
@@ -38,9 +54,9 @@ namespace TspImplementationPart1
     {
         CenterOfMass centerOfMass;
         IList<Point> allPoints;
-        int numberOfPoints;
+        public int numberOfPoints;
 
-        Group[] groups = new Group[4];
+        public Group[] groups = new Group[4];
 
         public TspInstance()
         {
@@ -73,7 +89,7 @@ namespace TspImplementationPart1
             for (var groupIndex = 1; groupIndex < 4; groupIndex++)
             {
                 groups[groupIndex] = new Group();
-                point = allPoints.OrderBy(p => p.Distance(centerOfMass)).LastOrDefault();
+                point = allPoints.OrderBy(p => p.Distance(centerOfMass)).Last();
                 groups[groupIndex].AddPoint(point);
                 centerOfMass.AddPoint(point);
                 allPoints.Remove(point);
@@ -84,7 +100,7 @@ namespace TspImplementationPart1
                 // 4 | allPoints.Count()
                 for (int groupIndex = 0; groupIndex < 4; groupIndex++)
                 {
-                    point = allPoints.OrderBy(p => p.Distance(groups[groupIndex].centerOfMass)).FirstOrDefault();
+                    point = allPoints.OrderBy(p => p.Distance(groups[groupIndex].centerOfMass)).First();
                     groups[groupIndex].AddPoint(point);
                     allPoints.Remove(point);
                 }
@@ -107,7 +123,8 @@ namespace TspImplementationPart1
 
         public int Distance(Point other)
         {
-            return (int)Math.Round(Math.Sqrt(this.x * other.x + this.y * other.y), 0);
+            if (other == null) return 0;
+            return (int)Math.Round(Math.Sqrt((this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y)), 0);
         }
 
         [Obsolete]
@@ -121,16 +138,46 @@ namespace TspImplementationPart1
     {
         public CenterOfMass centerOfMass;
         public IList<Point> points;
+        public IList<Point> solution;
+        public long distance = 0;
+
         public Group()
         {
             points = new List<Point>();
+            solution = new List<Point>();
             centerOfMass = new CenterOfMass();
+            
         }
 
         public void AddPoint(Point point)
         {
-            this.points.Add(point);
+            this.points.Add(point);            
             centerOfMass.AddPoint(point);
+        }
+
+        public void Calculate(int numberOfPoints)
+        {
+            Random rand = new Random();
+            int pos = rand.Next(numberOfPoints);
+            solution.Add(points[pos]);
+            points.RemoveAt(pos);
+            Point point;
+            while (points.Any())
+            {
+                point = points.OrderBy(p => p.Distance(solution.Last())).First();
+                distance += point.Distance(this.solution.Last());
+                solution.Add(point);
+                points.Remove(point);
+            }
+        }
+
+        internal void WriteSolution(StreamWriter sol)
+        {
+            int count = solution.Count;
+            for (int i = 0; i < count; i++)
+            {
+                sol.WriteLine(solution[i].id.ToString());
+            }
         }
     }
 
@@ -148,7 +195,7 @@ namespace TspImplementationPart1
         {
             weight++;
             x += (point.x - x) / weight;
-            y += (point.x - y) / weight;            
+            y += (point.y - y) / weight;            
         }
     }
 }
