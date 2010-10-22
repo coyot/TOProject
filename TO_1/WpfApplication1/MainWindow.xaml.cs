@@ -25,7 +25,7 @@ namespace WpfApplication1
         {
             InitializeComponent();
             var instance = new List<Point>();
-            string fileName = @"D:\kroA100.txt";
+            string fileName = @"D:\kroB100.txt";
             if (!File.Exists(fileName))
             {
                 Console.WriteLine("{0} does not exist.", fileName);
