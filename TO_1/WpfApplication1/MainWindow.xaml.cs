@@ -58,7 +58,7 @@ namespace WpfApplication1
                     if(input.Equals(string.Empty))
                     {
                         Line finalLine = new Line();
-                        finalLine.Stroke = brushes[brushIndex]; ;
+                        finalLine.Stroke =Brushes.Pink ;
                         finalLine.X1 = instance[lastPos].X / 4;
                         finalLine.X2 = instance[firstInCycle].X / 4;
                         finalLine.Y1 = instance[lastPos].Y / 4;
