@@ -68,6 +68,28 @@ namespace WpfApplication1
                         finalLine.StrokeThickness = 2;
                         myGrid.Children.Add(finalLine);
 
+                        Ellipse myEllipse = new Ellipse();
+                        
+                        // Create a SolidColorBrush with a red color to fill the 
+                        // Ellipse with.
+                        SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+
+                        // Describes the brush's color using RGB values. 
+                        // Each value has a range of 0-255.
+                        mySolidColorBrush.Color = Color.FromArgb(128, 255, 0, 0);
+                        myEllipse.Fill = mySolidColorBrush;
+
+                        // Set the width and height of the Ellipse.
+                        myEllipse.Width = 4;
+                        myEllipse.Height = 4;
+
+                        myEllipse.VerticalAlignment = VerticalAlignment.Top;
+                        myEllipse.HorizontalAlignment = HorizontalAlignment.Left;
+                        myEllipse.Margin = new Thickness(instance[firstInCycle].X/4-1, instance[firstInCycle].Y/4-1, 0, 0);
+
+                        // Add the Ellipse to the StackPanel.
+                        myGrid.Children.Add(myEllipse);
+
                         if ((input = sr.ReadLine()) == null)
                             break;
                         if (input.Equals(string.Empty))
