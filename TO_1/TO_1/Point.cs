@@ -10,6 +10,7 @@ namespace TO_1
         public int x;
         public int y;
         public int id;
+        public byte groupId;
         public Point() { }
         public Point(string[] input)
         {
@@ -20,7 +21,8 @@ namespace TO_1
 
         public int Distance(Point other)
         {
-            if (other == null) return 0;
+            if (other == null)
+                return 0;
             return (int)Math.Round(Math.Sqrt((this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y)), 0);
         }
 
