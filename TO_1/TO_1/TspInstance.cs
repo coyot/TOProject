@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 namespace TO_1
 {
@@ -52,6 +53,7 @@ namespace TO_1
 
             Random r = new Random();
             int id = r.Next(numberOfPoints);
+            id = 33;
             var pointsToBeMoved = new List<Point>();
             var allPoints = CreateAllPoints();
 
@@ -61,6 +63,7 @@ namespace TO_1
             pointsToBeMoved.AddRange(allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(firstToMove)).Take(k - 1));
 
             IList<Path> paths = new List<Path>();
+            IList<Path> target = new List<Path>();
             foreach (var item in pointsToBeMoved)
             {
                 bool added = false;
@@ -68,10 +71,10 @@ namespace TO_1
                 {
                     if(path.points.First().id == item.id)
                     {
-                        int pos = allPoints.IndexOf(item);
+                        int pos = allPoints.IndexOf(item)-1;
                         if (pos % 25 == 0)
                             pos += 25;
-                        path.points.AddFirst(allPoints[pos - 1]);
+                        path.points.AddFirst(allPoints[pos]);
                         added = true;
                     }
                     else if(path.points.Last().id == item.id)
@@ -79,7 +82,7 @@ namespace TO_1
                         int pos = allPoints.IndexOf(item);
                         if (pos % 25 == 24)
                             pos -= 25;
-                        path.points.AddFirst(allPoints[pos + 1]);
+                        path.points.AddLast(allPoints[pos + 1]);
                         added = true;
                     }
                 }
@@ -97,13 +100,75 @@ namespace TO_1
 
                     if (next % 25 == 0)
                         next -= 25;
-                    newPath.points.AddFirst(allPoints[next + 1]); 
-
-                    paths.Add(newPath);
+                    newPath.points.AddLast(allPoints[next]); 
+                    paths.Add(newPath);                    
                 }
             }
 
+            foreach (var path in paths)
+                target.Add(new Path( path.points.First.Value));
+            paths = FindBestAllocation(paths,pointsToBeMoved,target,null,0,2);
+            ;
 
+        }
+
+        private IList<Path> FindBestAllocation(IList<Path> paths, List<Point> points,IList<Path> target,Point p, int pathNr, int posNr)
+        {
+            if (p != null)
+            {
+                if (target[pathNr].points.Count >= posNr + 1)
+                {
+                    LinkedListNode<Point> point =  target[pathNr].points.Find(target[pathNr].points.ElementAt(posNr)).Previous;
+                    
+                    target[pathNr].points.AddAfter(point, p);
+                    target[pathNr].points.Remove(target[pathNr].points.ElementAt(posNr));
+                }
+                else if (paths[pathNr].points.Count > posNr  )
+                    target[pathNr].points.AddLast(p);
+
+                if (paths[pathNr].points.Count == posNr +1 )
+                {
+                    if(paths[pathNr].points.Count > target[pathNr].points.Count)
+                        target[pathNr].points.AddLast(paths[pathNr].points.Last.Value);
+                    pathNr++;
+                    posNr = 2;
+                }
+                else
+                    posNr++;
+            }
+            //else
+            //{
+            //    target = new List<Path>();
+            //    for (int i = 0; i < paths.Count; i++)
+            //    {
+            //        target.Add(new Path());
+            //        target[i].points.AddFirst(paths[i].points.First.Value);
+            //    }
+            //}
+
+            if (points.Any())
+                foreach (Point item in points)
+                {
+                    var tmp = points.Except<Point>(new List<Point>() { item }).ToList();
+                    var tmpResult = FindBestAllocation(paths, tmp,new List<Path>(target), item, pathNr,posNr);
+                    if (ComparePaths(paths, tmpResult))
+                        paths = tmpResult;
+                }
+            else
+            {
+                foreach (var item in target.First().points)
+                {
+                    Debug.Write(item.id + " -> ");
+                }
+                Debug.WriteLine(' ');
+
+            }
+            return paths;
+        }
+
+        private bool ComparePaths(IList<Path> toRet, IList<Path> tmpResult)
+        {
+            return (toRet.Sum(p => p.Distance) > tmpResult.Sum(p => p.Distance));
         }
 
         private IList<Point> CreateAllPoints()
@@ -125,7 +190,7 @@ namespace TO_1
         {
             Random rand = new Random();
             int pos = rand.Next(numberOfPoints);
-            //pos = 43;
+            pos = 43;
             groups[0] = new Group(0);
             pointsDict[0] = new List<Point>();
             pointsDict[0].Add(allPoints[pos]);
