@@ -1,0 +1,157 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass{article}
+\usepackage[MeX]{polski} 		%linkuje pakiet polski
+\usepackage[utf8]{inputenc}	%ustawia kodowanie
+\usepackage{latexsym}			%znaczki matematyczne
+\usepackage{indentfirst}		%akapity zaczynaja sie od wciecia
+\usepackage{wasysym}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+%%\usepackage{pxfonts}
+\usepackage{url}
+\usepackage{clrscode}			%pseudokod
+\usepackage{array}
+\usepackage{amssymb}				%symbole
+\author{Łukasz Wojnarowski (80164)\\ Tomasz Kujawa (75909)}
+\title{Techniki optymalizacji}
+
+\setlength{\textheight}{22cm}
+\setlength{\textwidth}{15.72cm}
+\setlength{\footskip}{10mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+\setlength{\topmargin}{0mm}
+
+%%\let\stdsection\section
+%%\renewcommand\section{\newpage\stdsection}
+
+\begin{document}
+
+\pagestyle{empty}
+\pagestyle{fancy}
+\renewcommand{\sectionmark}[1]{\markright{\thesection \quad #1}}
+\fancyhf{}
+\fancyhead[LE,RO]{\small\bfseries\thepage}
+\fancyhead[LO]{\small\bfseries\rightmark}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+\addtolength{\headheight}{0.5pt}
+\fancypagestyle{plain}{
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+}
+
+\maketitle
+\newpage
+\tableofcontents %spis treœci
+\newpage
+
+\section{Opis problemu}
+Rozwiązywany problem jest rozwinięciem \emph{problemu komiwojażera} (TSP - ang. traveling salesman problem), który polega na znalezieniu 4 cykli hamiltona w pełnym grafie ważonym o minimalnej sumie wag.
+
+Dane wejściowe składają się z grafu pełnego $\mathcal{G}=(\mathcal{V},\mathcal{E})$, gdzie $\mathcal{V}$ to zbiór wierzchołków (można go interpretować jako zbiór punktów na płaszczyźnie), a $\mathcal{E}$ to zbiór krawędzi.
+Dla każdej z krawędzi $\{v_i,v_j\} \colon v_i,v_j \in \mathcal{V}$ znana jest waga, będąca odległością pomiędzy wierzchołkami $v_i,v_j$. Rozwiązaniem problemu są cztery cykle proste
+\begin{equation}
+w_1,w_2,w_3,\ldots,w_n,w_1 \mbox{ ; }x_1,x_2,x_3,\ldots,x_n,x_1 \mbox{ ; } y_1,y_2,y_3,\ldots,y_n,y_1 \mbox{ oraz } z_1,z_2,z_3,\ldots,z_n,z_1,
+\end{equation} które spełniają następujące ograniczenia:
+\begin{itemize}
+	\item $w_i \in \mathcal{V'}$,
+	\item $x_j \in \mathcal{V''}$,
+	\item $y_k \in \mathcal{V'''}$,
+	\item $z_l \in \mathcal{V''''}$,
+	\item $\mathcal{V'} \cup \mathcal{V''} \cup \mathcal{V'''} \cup \mathcal{V''''} = \mathcal{V}$,
+	\item $\mathcal{V'} \cap \mathcal{V''} \cap \mathcal{V'''} \cap \mathcal{V''''} = \varnothing$,
+	\item $|\mathcal{V'}| = |\mathcal{V''}| = |\mathcal{V'''}| = |\mathcal{V''''}| = n$, przy założeniu, że $\mathcal{V} = 4n$.
+\end{itemize}
+
+Niech $|{v_i, v_j}|$ oznacza wagę (koszt) krawędzi pomiędzy wierzchoękami $v_i, v_j$. Dla tak zdefiniowanego modelu można określić funkcję celu w następujący sposób:
+\begin{equation}
+minC=\sum \limits_{i<n}^{i=1} |w_i,w_{i+1}| + |w_n,w_1| + \sum \limits_{i<n}^{i=1} |x_i,x_{i+1}| + |x_m,x_1| + \sum \limits_{i<n}^{i=1} |y_i,y_{i+1}| + |y_m,y_1| + \sum \limits_{i<n}^{i=1} |z_i,z_{i+1}| + |z_m,z_1|
+\end{equation}
+
+gdzie$|\mathcal{V}| = 4n$.
+
+\section{Generowanie rozwiązania początkowego (\emph{RP})}
+\subsection{Opis metody}
+Analizowana metoda generowania rozwiązania początkowego to \emph{grupowanie} i następnie \emph{poszukiwanie najbliższego sąsiada}.
+
+\subsubsection{Słowny} \label{sec:slownyrp}
+Metoda rozpoczyna się od losowego wybrania wierzchołka początkowego, na którego podstawie stworzone zostaną grupy. Grupy mają najpierw przydzielane z puli dostępnych wierzchołków elementy początkowe - takie, że środek ciężkości od punktów już wcześniej przydzielonych jest największy. Następnie na podstawie wybranych "liderów" budowane są grupy - tak, że każdy kolejny element dodawany do grupy będzie miał najmniejszą odległość od środka ciężkości grupy. Należy zaznaczyć, że przydział po grupach odbywa się iteracyjnie - tzn. najpierw przydzielamy jeden element do grupy pierwszej, potem jeden element do grupy drugiej i iteracyjnie aż do wyczerpania się elementów nieprzydzielonych do żadnej grupy. Przydział ten jest iteracyjnie powtarzany, aż stworzone zostaną 4 grupy o równych licznościach.
+
+Następnie w każdej grupie następuje budowanie ścieżki tak, że przy każdym kroku wybierany jest taki wierzchołek, że jego odległość od środka ciężkości dotychczas wybranych wierzchołków jest najmniejsza. Algorytm zatrzymuje się, jeśli w grupie nie będzie już nieodwiedzonych wierzchołków. Należy pamiętać, by rozwiązanie uzupełnić o krawędź pomiędzy ostatnim a pierwszym wierzchołkiem.
+
+\newpage
+\subsubsection{Pseudokod}
+
+Poniżej zaprezentowano pseudokod algorytmu opisanego w części \ref{sec:slownyrp}.
+
+\begin{codebox}
+	\Procname{$\proc{Generuj rozwiązanie początkowe}(\mathcal{V})$}
+	\li $\id{v1} \gets  \proc{Pobierz losowo}(\mathcal{V})$
+	\li $\id{v2} \gets  \proc{Pobierz najdalszy}(\mathcal{V} \setminus\{\id{v1}\} )$
+	\li $\id{v3} \gets  \proc{Pobierz najdalszy}(\mathcal{V} \setminus\{\id{v1, v2}\} )$
+	\li $\id{v4} \gets  \proc{Pobierz najdalszy}(\mathcal{V} \setminus\{\id{v1, v2, v3}\} )$
+	\li $\proc{Umieść w pierwszej grupie}(\id{v1})$
+	\li $\proc{Umieść w drugiej grupie}(\id{v2})$
+	\li $\proc{Umieść w trzeciej grupie}(\id{v3})$
+	\li $\proc{Umieść w czwartej grupie}(\id{v4})$
+	
+	\li $\id{i} \gets 1$
+	\li \While \emph{$\exists$ $\mathcal{U} =$ wierzchołki nieumieszczone w żadnej grupie}
+	\li \Do
+		\li $\id{v} \gets \proc{Pobierz najdalszy}(\mathcal{U})$
+		\li $\proc{Umieść w i-tej grupie}(\id{v})$
+		\li $i=(i+1) \% 5$
+		\li \End
+	 
+	\li $\id{i} \gets 1$
+
+	\li \While \emph{$\exists$ grupa z nieprzydzielonymi wierzchołkami}
+	\li \Do
+		\li $\id{next} \gets \proc{Najbliższy nieodwiedzony wierzchołek dla grupy}(\id{i})$
+		\li $\proc{Dodaj wierzchołek go i-tego cyklu}(\id{i})$
+		\li $i=(i+1) \% 5$
+		\li \End
+	\End
+\end{codebox}
+
+\subsection{Wyniki}
+
+W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opracowywanej metody.
+
+\begin{table}[h!]
+\begin{center}
+  \begin{tabular}{| c | m{5cm} | m{3cm} | c | c | }
+    \hline
+	instancja & \centering metoda & śr. wart. rozwiązania z 20 pomiarów & śr. czas [ms] & najlepsza wartość \\ \hline
+    kroA100.txt & Grupowianie oraz wybór najbliższego sąsiada. & \centering 29878 & 0,25 & 24249 \\
+    \hline
+  \end{tabular}
+\end{center}
+\caption{Uśrednione wyniki pomiarów.} \label{tab:wynikirp}
+\end{table}
+
+\begin{figure}[h!]
+\centering\includegraphics[width=17cm]{img/rys1.png}
+\caption{Rozwiązanie początkowe dla \emph{kroA100.txt}}
+\end{figure}
+
+\section{Local search (LS)}
+\subsection{Opis metody}
+Analizowana metoda generowania rozwiązania to \emph{rozrywanie (1 ruch) w wersji stromej}.
+
+\subsection{Opis słowny metody}
+Proces poszukiwania lokalnego optimum rozpoczyna się od wykonania kroków z opisanego w rozdziale \emph{Generowanie rozwiązania początkowego}. Następnie na takim rozwiązaniu dokonywane jest lokalne przeszukiwanie.
+
+Kroki metody:
+	\begin{enumerate}
+		\item Wybierz wierzchołek i $k-1$ mu najbliższych wierzchołków. 
+		\item Rozerwij łuki wokół tych wierzchołków.
+		\item Rozważ wszystkie możliwe sposoby naprawy do rozwiazania tego problemu.
+		\item Wykonaj ruch, który przynosi najwięcej zysku.
+	\end{enumerate}
+
+Parametr $k \in {2,3,4}$ jest definiowany na wejściu programu.
+
+\end{document}
