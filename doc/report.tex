@@ -53,7 +53,7 @@ Rozwiązywany problem jest rozwinięciem \emph{problemu komiwojażera} (TSP - an
 Dane wejściowe składają się z grafu pełnego $\mathcal{G}=(\mathcal{V},\mathcal{E})$, gdzie $\mathcal{V}$ to zbiór wierzchołków (można go interpretować jako zbiór punktów na płaszczyźnie), a $\mathcal{E}$ to zbiór krawędzi.
 Dla każdej z krawędzi $\{v_i,v_j\} \colon v_i,v_j \in \mathcal{V}$ znana jest waga, będąca odległością pomiędzy wierzchołkami $v_i,v_j$. Rozwiązaniem problemu są cztery cykle proste
 \begin{equation}
-w_1,w_2,w_3,\ldots,w_n,w_1 \mbox{ ; }x_1,x_2,x_3,\ldots,x_n,x_1 \mbox{ ; } y_1,y_2,y_3,\ldots,y_n,y_1 \mbox{ oraz } z_1,z_2,z_3,\ldots,z_n,z_1,
+w_1,w_2,w_3,\ldots,w_{n-1},w_n \mbox{ ; }x_1,x_2,x_3,\ldots,x_{n-1},x_n \mbox{ ; } y_1,y_2,y_3,\ldots,y_{n-1},y_n \mbox{ oraz } z_1,z_2,z_3,\ldots,z_{n-1},z_n,
 \end{equation} które spełniają następujące ograniczenia:
 \begin{itemize}
 	\item $w_i \in \mathcal{V'}$,
@@ -65,21 +65,21 @@ w_1,w_2,w_3,\ldots,w_n,w_1 \mbox{ ; }x_1,x_2,x_3,\ldots,x_n,x_1 \mbox{ ; } y_1,y
 	\item $|\mathcal{V'}| = |\mathcal{V''}| = |\mathcal{V'''}| = |\mathcal{V''''}| = n$, przy założeniu, że $\mathcal{V} = 4n$.
 \end{itemize}
 
-Niech $|{v_i, v_j}|$ oznacza wagę (koszt) krawędzi pomiędzy wierzchoękami $v_i, v_j$. Dla tak zdefiniowanego modelu można określić funkcję celu w następujący sposób:
+Niech $|{v_i, v_j}|$ oznacza wagę (koszt przebycia drogi) krawędzi pomiędzy wierzchołkami $v_i, v_j$. Dla tak zdefiniowanego modelu funkcja celu została określona w następujący sposób:
 \begin{equation}
-minC=\sum \limits_{i<n}^{i=1} |w_i,w_{i+1}| + |w_n,w_1| + \sum \limits_{i<n}^{i=1} |x_i,x_{i+1}| + |x_m,x_1| + \sum \limits_{i<n}^{i=1} |y_i,y_{i+1}| + |y_m,y_1| + \sum \limits_{i<n}^{i=1} |z_i,z_{i+1}| + |z_m,z_1|
+min C = \sum \limits_{i<n}^{i=1} |w_i,w_{i+1}| + |w_n,w_1| + \sum \limits_{i<n}^{i=1} |x_i,x_{i+1}| + |x_m,x_1| + \sum \limits_{i<n}^{i=1} |y_i,y_{i+1}| + |y_m,y_1| + \sum \limits_{i<n}^{i=1} |z_i,z_{i+1}| + |z_m,z_1|
 \end{equation}
 
-gdzie$|\mathcal{V}| = 4n$.
+gdzie $|\mathcal{V}| = 4n$.
 
 \section{Generowanie rozwiązania początkowego (\emph{RP})}
 \subsection{Opis metody}
 Analizowana metoda generowania rozwiązania początkowego to \emph{grupowanie} i następnie \emph{poszukiwanie najbliższego sąsiada}.
 
 \subsubsection{Słowny} \label{sec:slownyrp}
-Metoda rozpoczyna się od losowego wybrania wierzchołka początkowego, na którego podstawie stworzone zostaną grupy. Grupy mają najpierw przydzielane z puli dostępnych wierzchołków elementy początkowe - takie, że środek ciężkości od punktów już wcześniej przydzielonych jest największy. Następnie na podstawie wybranych "liderów" budowane są grupy - tak, że każdy kolejny element dodawany do grupy będzie miał najmniejszą odległość od środka ciężkości grupy. Należy zaznaczyć, że przydział po grupach odbywa się iteracyjnie - tzn. najpierw przydzielamy jeden element do grupy pierwszej, potem jeden element do grupy drugiej i iteracyjnie aż do wyczerpania się elementów nieprzydzielonych do żadnej grupy. Przydział ten jest iteracyjnie powtarzany, aż stworzone zostaną 4 grupy o równych licznościach.
+Metoda rozpoczyna się od losowego wybrania wierzchołka początkowego, na którego podstawie stworzone zostaną grupy. Grupy mają najpierw przydzielane z puli dostępnych wierzchołków elementy początkowe - takie, że środek ciężkości od punktów już wcześniej przydzielonych jest największy. Następnie na podstawie wybranych "liderów" budowane są grupy - tak, że każdy kolejny element dodawany do grupy będzie miał najmniejszą odległość od środka ciężkości grupy. Należy zaznaczyć, że przydział po grupach odbywa się iteracyjnie - tzn. najpierw przydzielamy jeden element do grupy pierwszej, potem jeden element do grupy drugiej i iteracyjnie aż do wyczerpania się elementów nieprzydzielonych do żadnej grupy. Przydział ten jest powtarzany, aż stworzone zostaną 4 grupy o równych licznościach.
 
-Następnie w każdej grupie następuje budowanie ścieżki tak, że przy każdym kroku wybierany jest taki wierzchołek, że jego odległość od środka ciężkości dotychczas wybranych wierzchołków jest najmniejsza. Algorytm zatrzymuje się, jeśli w grupie nie będzie już nieodwiedzonych wierzchołków. Należy pamiętać, by rozwiązanie uzupełnić o krawędź pomiędzy ostatnim a pierwszym wierzchołkiem.
+Następnie w każdej grupie następuje budowanie ścieżki (cyklu) tak, że przy każdym kroku wybierany jest taki wierzchołek, że jego odległość od środka ciężkości dotychczas wybranych wierzchołków jest najmniejsza. Algorytm zatrzymuje się, jeśli w grupie nie będzie już nieodwiedzonych wierzchołków. Należy pamiętać, by rozwiązanie uzupełnić o krawędź pomiędzy ostatnim a pierwszym wierzchołkiem - tzn. by waga zwracana uwzględniała połączenie pomiędzy ostatnim, a pierwszym elementem cyklu.
 
 \newpage
 \subsubsection{Pseudokod}
@@ -88,32 +88,44 @@ Poniżej zaprezentowano pseudokod algorytmu opisanego w części \ref{sec:slowny
 
 \begin{codebox}
 	\Procname{$\proc{Generuj rozwiązanie początkowe}(\mathcal{V})$}
+	\li $\proc{Generuj podział na grupy}()$
+	\li
+	\li $\id{i} \gets 1$
+	\li \For  \emph{$\forall$ $\id{i}$ in $\{1, 2, 3, 4\}$}
+		\li \Do
+			\li $\id{v} \gets \proc{Pobierz losowy z grupy}(\id{i})$
+			\li $\proc{Przydziel wierzchołek do ścieżki w grupie}(\id{v})$
+		\li \End
+	\li \While \emph{$\exists$ grupa z nieprzydzielonymi wierzchołkami}
+	\li \Do
+		\li $\id{next} \gets \proc{Najbliższy nieprzydzielony wierzchołek dla grupy}(\id{i})$
+		\li $\proc{Przydziel wierzchołek do ściezki w grupie}(next)$
+		\li $i=(i+1) \% 5$
+		\li \End
+	\End
+\end{codebox}
+
+W kodzie wykorzystano metode przygotowania grup, która została zaprezentowana poniżej:
+
+
+\begin{codebox}
+	\Procname{$\proc{Generuj podział na grupy}(\mathcal{V})$}
 	\li $\id{v1} \gets  \proc{Pobierz losowo}(\mathcal{V})$
 	\li $\id{v2} \gets  \proc{Pobierz najdalszy}(\mathcal{V} \setminus\{\id{v1}\} )$
 	\li $\id{v3} \gets  \proc{Pobierz najdalszy}(\mathcal{V} \setminus\{\id{v1, v2}\} )$
 	\li $\id{v4} \gets  \proc{Pobierz najdalszy}(\mathcal{V} \setminus\{\id{v1, v2, v3}\} )$
-	\li $\proc{Umieść w pierwszej grupie}(\id{v1})$
-	\li $\proc{Umieść w drugiej grupie}(\id{v2})$
-	\li $\proc{Umieść w trzeciej grupie}(\id{v3})$
-	\li $\proc{Umieść w czwartej grupie}(\id{v4})$
+	\li $\proc{Umieść wierzchołek w grupie}(\id{v1}, $1$)$
+	\li $\proc{Umieść wierzchołek w grupie}(\id{v2}, $2$)$
+	\li $\proc{Umieść wierzchołek w grupie}(\id{v3}, $3$)$
+	\li $\proc{Umieść wierzchołek w grupie}(\id{v4}, $4$)$
 	
 	\li $\id{i} \gets 1$
-	\li \While \emph{$\exists$ $\mathcal{U} =$ wierzchołki nieumieszczone w żadnej grupie}
+	\li \While \emph{$\exists$ $\mathcal{U} \gets $ wierzchołki nieumieszczone w żadnej grupie}
 	\li \Do
-		\li $\id{v} \gets \proc{Pobierz najdalszy}(\mathcal{U})$
-		\li $\proc{Umieść w i-tej grupie}(\id{v})$
+		\li $\id{closest\_v} \gets \proc{Pobierz najbliższy do \id{i}-tej grupy }(\mathcal{U})$
+		\li $\proc{Umieść w grupie}(\id{closest\_v}, $i$)$
 		\li $i=(i+1) \% 5$
 		\li \End
-	 
-	\li $\id{i} \gets 1$
-
-	\li \While \emph{$\exists$ grupa z nieprzydzielonymi wierzchołkami}
-	\li \Do
-		\li $\id{next} \gets \proc{Najbliższy nieodwiedzony wierzchołek dla grupy}(\id{i})$
-		\li $\proc{Dodaj wierzchołek go i-tego cyklu}(\id{i})$
-		\li $i=(i+1) \% 5$
-		\li \End
-	\End
 \end{codebox}
 
 \subsection{Wyniki}
@@ -122,10 +134,13 @@ W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opraco
 
 \begin{table}[h!]
 \begin{center}
-  \begin{tabular}{| c | m{5cm} | m{3cm} | c | c | }
+  
+  \begin{tabular}{| c | c | m{3cm} | c | c | c | }
     \hline
-	instancja & \centering metoda & śr. wart. rozwiązania z 20 pomiarów & śr. czas [ms] & najlepsza wartość \\ \hline
-    kroA100.txt & Grupowianie oraz wybór najbliższego sąsiada. & \centering 29878 & 0,25 & 24249 \\
+	instancja & \centering metoda & śr. wart. roz. z 10 pomiarów & mediana & odch. std. & najlepsza wartość \\ \hline
+    kroA100.txt & NS G & \centering 36305,1 & 35181 & 5171,589 & 30000\\
+    \hline
+    kroB100.txt & NS G & \centering 36434,7 & 37189 & 3499,752 & 30973\\
     \hline
   \end{tabular}
 \end{center}
@@ -188,5 +203,34 @@ Algorytm generowania rozwiązania można zapisać przy pomocy poniższego pseudo
 	\li \End
 	
 \end{codebox}
+\subsection{Wyniki}
+W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
+\begin{itemize}
+	\item \emph{RP} - metoda z pierwszego ćwiczenia - generowanie rozwiązania początkowego,
+	\item \emph{RP + LS} - metoda lokalnego przeszukiwania rozpoczynająca się od wygenerowania rozwiązania początkowego zgodnie z zasadami z ćwiczenia numer 1. 
+\end{itemize}
+	
+\newcolumntype{S}{>{\centering\arraybackslash} m{3cm} }
+\newcolumntype{D}{>{\centering\arraybackslash} m{5cm} }
+
+\begin{table}[h!]
+\begin{center}
+\centering
+  \begin{tabular}{| c | D | S | c | S | }
+\hline
+	instancja & metoda & śr. jakość (odch. standardowe) & śr. czas [ms] & jakość najlepszego przeszukiwania \\ \hline
+    kroA100.txt & \emph{RP} & 29878 (1644) & 0 & 25893 \\
+    kroA100.txt & \emph{RP + LS} & 23096 (1121) & 123 & 21359 \\
+\hline
+    kroB100.txt & \emph{RP} & 30661 (1648) & 0 & 25421 \\
+    kroB100.txt & \emph{RP + LS} & 24604 (665) & 125 & 22869 \\
+\hline
+  \end{tabular}
+\end{center}
+\caption{Uœrednione wyniki pomiarów.} \label{tab:wynikils}
+\end{table}
+
+\subsection{Rysunki najlepszych rozwiązań}
+Na poniższych rysunkach przedstawione zostały rozwiązania wygenerowane przy pomocy metody \emph{RP + LS}.
 
 \end{document}
