@@ -154,4 +154,39 @@ Kroki metody:
 
 Parametr $k \in {2,3,4}$ jest definiowany na wejściu programu.
 
+\subsection{Pseudokod}
+Algorytm generowania rozwiązania można zapisać przy pomocy poniższego pseudokodu.
+\begin{codebox}
+	\Procname{$\proc{Lokalne przeszukiwanie}(\mathcal{V}, \id{k})$}
+	\li $\id{rozwiązanie} \gets  \proc{Generuj rozwiązanie początkowe}(\mathcal{V})$
+	\li \While (\const{true})
+	\li \Do 
+	\li $\id{zysk} \gets 0 $
+	\li $\id{wybrani} \gets \proc{Wybierz łuki} (\id{k}, \mathcal{V}) $
+	\li $\id{możliwe\_przydziały} \gets \proc{Generuj możliwe przydziały} (\id{wybrani}) $
+	\li $\id{wartość} \gets \proc{Oblicz wartość rozwiązania} (\id{rozwiązanie}) $
+	\li \For  \emph{$\forall$ $\id{ruch}$ in $\id{możliwe\_przydziały}$}
+		\li \Do
+				\li $\id{aktualne\_rozwiązanie} \gets \proc{Wykonaj ruch} (\id{rozwiązanie}, \id{ruch}) $
+				\li $\id{aktualna\_wartość} \gets \proc{Oblicz wartość rozwiązania} (\id{aktualne\_rozwiązanie}) $
+				\li $\id{aktualny\_zysk} \gets \id{wartość} - \id{aktualna\_wartość}) $
+				\li \If $\id{aktualny\_zysk} \geq \id{zysk}$
+					\li \Then
+						\li $\id{zysk} \gets  \id{aktualny\_zysk}$
+						\li $\proc{Zapamiętaj ruch}(\id{ruch})$
+					\li \Else
+						\li \Return
+					 \End
+			\End
+	\li
+	\li \If $\id{zysk} > 0$
+		\li \Then
+			\li $\proc{Wykonaj zapamiętany ruch}(\id{rozwiązanie})$
+		\li \Else
+			\li \Return
+		 \End
+	\li \End
+	
+\end{codebox}
+
 \end{document}
