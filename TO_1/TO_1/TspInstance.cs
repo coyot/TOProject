@@ -40,6 +40,7 @@ namespace TO_1
             StreamWriter sol = new StreamWriter(@"D:\sol.txt");
 
             CalculateGroups();
+            res.WriteLine(distance.Sum(p => p).ToString());
             CalculateLocalSearch();
             WriteSolution(sol);
             res.WriteLine(distance.Sum(p => p).ToString());
@@ -49,12 +50,53 @@ namespace TO_1
 
         private void CalculateLocalSearch()
         {
-            int k = 3;
+            List<Point> pointsToBeMoved;
+            IList<Path> paths;
+            IList<Path> target;
+            GeneratePointsToBeMoved(out pointsToBeMoved, out paths, out target);
+
+
+            while (true)
+            {
+                bool continueLS = false;
+                for (int i = 0; i < 100; i++)
+                {
+                    GeneratePointsToBeMoved(out pointsToBeMoved, out paths, out target);
+                    long distance = paths.Sum(p => p.Distance);
+
+                    paths = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
+
+                    if (paths.Sum(p => p.Distance) < distance)
+                    {
+                        continueLS = true;
+                        foreach (var path in paths)
+                        {
+                            byte currentGroup = path.points.First.Value.groupId;
+                            Point p = path.points.First.Value;
+                            int pos = pointsDict[currentGroup].IndexOf(p);
+
+                            for (int l = 1; l < path.points.Count-1; l++)
+                            {
+                                pointsDict[currentGroup][(l + pos-1)%25] = path.points.ElementAt(l);
+                            }
+                        }
+                    }
+                }
+                if (!continueLS)
+                    break;
+            }
+            ;
+
+        }
+
+        private void GeneratePointsToBeMoved(out List<Point> pointsToBeMoved, out IList<Path> paths, out IList<Path> target)
+        {
+            int k = 6;
 
             Random r = new Random();
             int id = r.Next(numberOfPoints);
-            id = 33;
-            var pointsToBeMoved = new List<Point>();
+            //id = 33;
+            pointsToBeMoved = new List<Point>();
             var allPoints = CreateAllPoints();
 
             //pointsDict.ke
@@ -62,69 +104,123 @@ namespace TO_1
             pointsToBeMoved.Add(firstToMove);
             pointsToBeMoved.AddRange(allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(firstToMove)).Take(k - 1));
 
-            IList<Path> paths = new List<Path>();
-            IList<Path> target = new List<Path>();
+            paths = new List<Path>();
+            target = new List<Path>();
+            var pointsFromJoinedPaths = new List<Point>();
             foreach (var item in pointsToBeMoved)
             {
                 bool added = false;
                 foreach (var path in paths)
                 {
-                    if(path.points.First().id == item.id)
+                    if (path.points.First().id == item.id)
                     {
-                        int pos = allPoints.IndexOf(item)-1;
-                        if (pos % 25 == 0)
-                            pos += 25;
-                        path.points.AddFirst(allPoints[pos]);
+                        int pos = pointsDict[item.groupId].IndexOf(item);
+                        if (pos == 0)
+                            pos = 25;
+                        path.points.AddFirst(pointsDict[item.groupId][pos-1]);
                         added = true;
                     }
-                    else if(path.points.Last().id == item.id)
+                    else if (path.points.Last().id == item.id)
                     {
-                        int pos = allPoints.IndexOf(item);
-                        if (pos % 25 == 24)
-                            pos -= 25;
-                        path.points.AddLast(allPoints[pos + 1]);
+                        int pos = pointsDict[item.groupId].IndexOf(item);
+                        if (pos == 24)
+                            pos = -1;
+                        path.points.AddLast(pointsDict[item.groupId][pos + 1]);
                         added = true;
                     }
                 }
                 if (!added)
                 {
-                    
+
                     Path newPath = new Path();
-                    int pos = allPoints.IndexOf(item);
-                    int next = pos + 1;
-                    if (pos % 25 == 0)
-                        pos += 25;
-                    
-                    newPath.points.AddFirst(allPoints[pos - 1]);
+                    int pos = pointsDict[item.groupId].IndexOf(item);
+                    int next = pos;
+                    if (pos == 0)
+                        pos = 25;
+
+                    newPath.points.AddFirst(pointsDict[item.groupId][pos - 1]);
                     newPath.points.AddLast(item);
 
-                    if (next % 25 == 0)
-                        next -= 25;
-                    newPath.points.AddLast(allPoints[next]); 
-                    paths.Add(newPath);                    
+                    if (next  == 24)
+                        next = -1;
+                    newPath.points.AddLast(pointsDict[item.groupId][next+1]);
+                    paths.Add(newPath);
                 }
+                while (true)
+                {
+                    Path toRemove = null;
+                    foreach (var path in paths)
+                    {
+                        foreach (var innerPath in paths)
+                            if (path.points.Last.Value.id == innerPath.points.First.Value.id)
+                            {
+                                pointsFromJoinedPaths.Add(path.points.Last.Value);
+                                k++;
+                                foreach (var point in innerPath.points.Skip(1))
+                                {
+                                    path.points.AddLast(point);
+                                }
+                                toRemove = innerPath;
+                            }
+                        if (toRemove != null)
+                            break;
+                    }
+                    
+                    if (toRemove == null)
+                        break;
+                    else
+                        paths.Remove(toRemove);
+
+                }
+
+
             }
 
-            foreach (var path in paths)
-                target.Add(new Path( path.points.First.Value));
-            paths = FindBestAllocation(paths,pointsToBeMoved,target,null,0,2);
-            ;
 
+            foreach (var dupa in paths)
+            {
+                if (pointsToBeMoved.Contains(dupa.points.First.Value) || pointsToBeMoved.Contains(dupa.points.Last.Value))
+                    throw new NotImplementedException();
+            }
+
+            pointsToBeMoved.AddRange(pointsFromJoinedPaths);
+
+
+
+
+            foreach (var path in paths)
+                target.Add(new Path(path.points.First.Value));
+
+            //setting groupId for all points
+            for (byte i = 0; i < 4; i++)
+            {
+                foreach (var point in pointsDict[i])
+                {
+                    point.groupId = i;
+                }
+            }
         }
 
         private IList<Path> FindBestAllocation(IList<Path> paths, List<Point> points,IList<Path> target,Point p, int pathNr, int posNr)
         {
             if (p != null)
             {
+                if ( target[pathNr].points.First.Value.id == p.id || target[pathNr].points.Last.Value.id == p.id)
+                    throw new NotImplementedException("dupa");
+
                 if (target[pathNr].points.Count >= posNr + 1)
                 {
                     LinkedListNode<Point> point =  target[pathNr].points.Find(target[pathNr].points.ElementAt(posNr)).Previous;
                     
                     target[pathNr].points.AddAfter(point, p);
-                    target[pathNr].points.Remove(target[pathNr].points.ElementAt(posNr));
+                    target[pathNr].points.Remove(target[pathNr].points.ElementAt(posNr-1));
                 }
-                else if (paths[pathNr].points.Count > posNr  )
+                else if (paths[pathNr].points.Count > posNr)
+                {
+                    if (target[pathNr].points.Last.Value.id == p.id )
+                        throw new NotImplementedException("dupa");
                     target[pathNr].points.AddLast(p);
+                }
 
                 if (paths[pathNr].points.Count == posNr +1 )
                 {
@@ -150,17 +246,18 @@ namespace TO_1
                 foreach (Point item in points)
                 {
                     var tmp = points.Except<Point>(new List<Point>() { item }).ToList();
-                    var tmpResult = FindBestAllocation(paths, tmp,new List<Path>(target), item, pathNr,posNr);
+                    var tmpResult = FindBestAllocation(paths, tmp,target, item, pathNr,posNr);
                     if (ComparePaths(paths, tmpResult))
                         paths = tmpResult;
                 }
             else
             {
-                foreach (var item in target.First().points)
-                {
-                    Debug.Write(item.id + " -> ");
-                }
-                Debug.WriteLine(' ');
+                //foreach (var item in target.First().points)
+                //{
+                //    Debug.Write(item.id + " -> ");
+                //}
+                //Debug.WriteLine(' ');
+                paths = target;
 
             }
             return paths;
@@ -248,7 +345,7 @@ namespace TO_1
             {
                 Random rand = new Random();
                 pos = rand.Next(numberOfPoints / 4);
-                pos = 0;
+                //pos = 0;
                 tmpPoint = pointsDict[i][0];
                 pointsDict[i][0] = pointsDict[i][pos];
                 pointsDict[i][pos] = tmpPoint;

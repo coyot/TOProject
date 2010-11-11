@@ -7,6 +7,7 @@ namespace TO_1
 {
     public class Path
     {
+        byte groupId;
         public LinkedList<Point> points;
         public int Distance 
         { 
