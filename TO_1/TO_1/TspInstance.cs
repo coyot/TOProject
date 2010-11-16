@@ -9,6 +9,7 @@ namespace TO_1
 {
     public class TspInstance
     {
+        byte firstToBeMoved;
         CenterOfMass centerOfMass;
         IList<Point> allPoints;
         public int numberOfPoints;
@@ -23,6 +24,7 @@ namespace TO_1
             allPoints = new List<Point>();
             numberOfPoints = 0;
             pointsDict = new Dictionary<byte, IList<Point>>();
+            firstToBeMoved = 1;
         }
 
         public void AddPoint(string[] input)
@@ -38,14 +40,46 @@ namespace TO_1
 
             StreamWriter res = new StreamWriter("res.txt", true);
             StreamWriter sol = new StreamWriter(@"D:\sol.txt");
+            StreamWriter presol = new StreamWriter(@"D:\presol.txt");
 
             CalculateGroups();
+
+            for (byte i = 0; i < 4; i++)
+            {
+                distance[i] = 0;
+                for (int k = 1; k < numberOfPoints / 4; k++)
+                {
+                    distance[i] += pointsDict[i][k - 1].Distance(pointsDict[i][k]);
+                }
+            }
+            for (byte i = 0; i < 4; i++)
+            {
+                distance[i] += pointsDict[i].First().Distance(pointsDict[i].Last());
+            }
+            WriteSolution(presol);
+
             res.WriteLine(distance.Sum(p => p).ToString());
             CalculateLocalSearch();
+
+
+            for (byte i = 0; i < 4; i++)
+            {
+                distance[i] = 0;
+                for (int k = 1; k < numberOfPoints / 4; k++)
+                {
+                    distance[i] += pointsDict[i][k-1].Distance(pointsDict[i][k]);
+                }
+            }
+            for (byte i = 0; i < 4; i++)
+            {
+                distance[i] += pointsDict[i].First().Distance(pointsDict[i].Last());
+            }
+
             WriteSolution(sol);
             res.WriteLine(distance.Sum(p => p).ToString());
             sol.Close();
             res.Close();
+            presol.Close();
         }
 
         private void CalculateLocalSearch()
@@ -59,14 +93,15 @@ namespace TO_1
             while (true)
             {
                 bool continueLS = false;
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i <3; i++)
                 {
                     GeneratePointsToBeMoved(out pointsToBeMoved, out paths, out target);
                     long distance = paths.Sum(p => p.Distance);
 
                     paths = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
+                    int pathsSum = paths.Sum(p => p.Distance);
 
-                    if (paths.Sum(p => p.Distance) < distance)
+                    if (pathsSum < distance)
                     {
                         continueLS = true;
                         foreach (var path in paths)
@@ -77,7 +112,8 @@ namespace TO_1
 
                             for (int l = 1; l < path.points.Count - 1; l++)
                             {
-                                pointsDict[currentGroup][(l + pos - 1) % 25] = path.points.ElementAt(l);
+                                path.points.ElementAt(l).groupId = currentGroup;
+                                pointsDict[currentGroup][(l + pos ) % 25] = path.points.ElementAt(l);
                             }
                         }
                     }
@@ -91,11 +127,11 @@ namespace TO_1
 
         private void GeneratePointsToBeMoved(out List<Point> pointsToBeMoved, out IList<Path> paths, out IList<Path> target)
         {
-            int k = 6;
+            int k = 9;
 
             Random r = new Random();
             int id = r.Next(numberOfPoints);
-            //id = 33;
+            //id = (firstToBeMoved++)%100;
             pointsToBeMoved = new List<Point>();
             var allPoints = CreateAllPoints();
 
@@ -289,8 +325,8 @@ namespace TO_1
         private void CreateGroups()
         {
             Random rand = new Random();
-            int pos = rand.Next(numberOfPoints);
-            pos = 43;
+            //int pos = rand.Next(numberOfPoints);
+            int pos = 43;
             groups[0] = new Group(0);
             pointsDict[0] = new List<Point>();
             pointsDict[0].Add(allPoints[pos]);
@@ -360,7 +396,7 @@ namespace TO_1
                     pos = pointsDict[i].IndexOf(tmpPoint);
                     pointsDict[i][pos] = pointsDict[i][k];
                     pointsDict[i][k] = tmpPoint;
-                    distance[i] += tmpPoint.Distance(pointsDict[i][k]);
+                    distance[i] += pointsDict[i][k-1].Distance(pointsDict[i][k]);
                 }
             }
 
