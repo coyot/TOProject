@@ -1,0 +1,14 @@
+# Compiled source #
+###################
+*.dll
+*.exe
+*.pdb
+*.user
+*ReSharper*
+
+# LaTeX resources #
+###################
+*.aux
+*.log
+*.synctex.gz
+*.toc
