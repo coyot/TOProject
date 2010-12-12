@@ -13,6 +13,7 @@ namespace TO_1
         static void Main(string[] args)
         {
             var instance = new TspInstance();
+            var instance2 = new TspInstance();
             string fileName = args[0];
             if (!File.Exists(fileName))
             {
@@ -25,12 +26,18 @@ namespace TO_1
                 while ((input = sr.ReadLine()) != null)
                 {
                     instance.AddPoint(input.Split(';'));
+                    instance2.AddPoint(input.Split(';'));
                 }
                 Console.WriteLine("The end of the stream has been reached.");
             }
-            using (new Timer())
+            // START LOCAL SEARCH ALGORITHM
+            using (new Timer("LocalSearch - with groups production"))
             {
                 instance.Calculate();
+            }
+            using (new Timer("LocalSearch - with RANDOM groups"))
+            {
+                instance2.CalculateRandom();
             }
             Console.ReadLine();
 

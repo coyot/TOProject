@@ -8,14 +8,16 @@ namespace TO_1
     /// </summary>
     public class Timer : Stopwatch, IDisposable
     {
-        public Timer()
+        public string AlgorithmName { get; set; }
+        public Timer(string algorithmName)
         {
+            AlgorithmName = algorithmName;
            Start();
         }
         public void Dispose()
         {
             Stop();
-            Console.WriteLine("Elapsed: {0}", ElapsedMilliseconds);
+            Console.WriteLine("{0} -> Elapsed: {1}", AlgorithmName, ElapsedMilliseconds);
         }
     }
 }
