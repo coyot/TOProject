@@ -128,6 +128,11 @@ W kodzie wykorzystano metode przygotowania grup, która została zaprezentowana 
 		\li \End
 \end{codebox}
 
+\section{Losowe rozwiązanie początkowe - LRP}
+Opisane w poprzednim rozdziale RP porównywane było z generowanym losowo podziałem na grupy. Pozwoliło to już na etapie kreacji grup zauważyć, jak ważne jest poszukanie odpowiedniej metody przygotowania rozwiązania początkowego. 
+
+Ponieważ rozwiązanie to jest proste i intuicyjne pominięto opis - zarówno w pseudokodzie, jak i słowny. Należy tylko odnotować, że w programie jest porównywanie rozwiązania \emph{RP} z losowym rozwiązaniem początkowym.
+
 \subsection{Wyniki}
 
 W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opracowywanej metody.
@@ -139,8 +144,10 @@ W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opraco
     \hline
 	instancja & \centering metoda & śr. wart. roz. z 10 pomiarów & mediana & odch. std. & najlepsza wartość \\ \hline
     kroA100.txt & NS G & \centering 36305,1 & 35181 & 5171,589 & 30000\\
+      & LRP & \centering 172098,93 & 173449 & 9454,07 & 149737\\
     \hline
     kroB100.txt & NS G & \centering 36434,7 & 37189 & 3499,752 & 30973\\
+      & LRP & \centering 167659,3 & 168948 & 8808,89 & 145770\\
     \hline
   \end{tabular}
 \end{center}
