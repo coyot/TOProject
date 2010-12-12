@@ -19,7 +19,7 @@ namespace TO_1
             {
                 Console.WriteLine("{0} does not exist.", fileName);
                 return;
-            }
+            } 
             using (StreamReader sr = File.OpenText(fileName))
             {
                 String input;
@@ -31,14 +31,11 @@ namespace TO_1
                 Console.WriteLine("The end of the stream has been reached.");
             }
             // START LOCAL SEARCH ALGORITHM
-            using (new Timer("LocalSearch - with groups production"))
-            {
-                instance.Calculate();
-            }
-            using (new Timer("LocalSearch - with RANDOM groups"))
-            {
-                instance2.CalculateRandom();
-            }
+            instance.Calculate();
+
+            // START RANDOM LOCAL SEARCH ALGORITHM
+            instance2.CalculateRandom();
+
             Console.ReadLine();
 
         }
