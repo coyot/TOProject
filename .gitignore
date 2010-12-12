@@ -5,6 +5,9 @@
 *.pdb
 *.user
 *ReSharper*
+*Debug/*
+*obj/*
+*bin/*
 
 # LaTeX resources #
 ###################

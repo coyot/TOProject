@@ -66,6 +66,7 @@
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Timer.cs" />
     <Compile Include="TspInstance.cs" />
   </ItemGroup>
   <ItemGroup>

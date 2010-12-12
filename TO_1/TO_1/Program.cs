@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -27,20 +28,19 @@ namespace TO_1
                 }
                 Console.WriteLine("The end of the stream has been reached.");
             }
-
-            instance.Calculate();
-
-            
-
-            //Console.ReadLine();
+            using (new Timer())
+            {
+                instance.Calculate();
+            }
+            Console.ReadLine();
 
         }
     }
 
-    
 
-    
 
-    
+
+
+
 
 }
