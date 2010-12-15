@@ -17,15 +17,7 @@ namespace TO_1
         public IDictionary<byte, IList<Point>> pointsDict;
         public IDictionary<Point, byte> newPointDict;
         //int[] distance = new int[4];
-        private const int LS_REPEAT_VALUE = 30;
-        private const int K_VALUE = 4;
-        private const bool WRITE_PRE_SOLUTION = false;
-        private const byte NUMBER_OF_GROUPS = 4;
-        private const int NUMBER_OF_POINTS_PER_GROUP = 25;
 
-        private const int NUMBER_OF_MUTATIONS = 10;
-        private const int NUMBER_OF_PRE_MUTATIONS = 10;
-        private const int NUMBER_OF_HEA_RUNS = 100;
 
         public Group[] groups = new Group[4];
 
@@ -59,15 +51,15 @@ namespace TO_1
             {
                 CreateRandomGroups();
 
-                if (WRITE_PRE_SOLUTION)
+                if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
-                    WriteSolution(presol);
+                    WriteSolution(pointsDict, presol);
                     res.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
                 CalculateLocalSearch();
             }
-            WriteSolution(sol);
+            WriteSolution(pointsDict, sol);
             res.WriteLine(pointsDict.Distance(NumberOfPoints));
 
             sol.Close();
@@ -85,16 +77,16 @@ namespace TO_1
                 CreateGroups();
                 CalculateGroups();
 
-                if (WRITE_PRE_SOLUTION)
+                if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
-                    WriteSolution(presol);
+                    WriteSolution(pointsDict, presol);
                     res.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
                 CalculateLocalSearch();
             }
 
-            WriteSolution(sol);
+            WriteSolution(pointsDict, sol);
             res.WriteLine(pointsDict.Distance(NumberOfPoints));
 
             sol.Close();
@@ -104,12 +96,12 @@ namespace TO_1
 
         public void CalculateHeuristicEvolutionaryAlgorithm()
         {
+            // we need to add starting results!! 
             IList<IDictionary<byte, IList<Point>>> results = null;
             IList<Point> left;
 
-
             // consider using some sort of timer here as well!! mayme by making it a thread?
-            for (var i = 0; i < NUMBER_OF_HEA_RUNS; i++)
+            for (var i = 0; i < TspInstanceConstants.NUMBER_OF_HEA_RUNS; i++)
             {
                 // recombinate two chosen results!;->
                 var commonPaths = Recombination(results[0], results[1], out left);
@@ -117,7 +109,7 @@ namespace TO_1
 
 
                 // Prepare start resolution...
-                for (var j = 0; j < NUMBER_OF_PRE_MUTATIONS; j++)
+                for (var j = 0; j < TspInstanceConstants.NUMBER_OF_PRE_MUTATIONS; j++)
                 {
                     preMutated.Add(PrepareForMutationByChance(commonPaths));
                 }
@@ -127,7 +119,7 @@ namespace TO_1
                 // now we mutate!!
                 foreach (var mutation in mutated)
                 {
-                    for (var j = 0; j < NUMBER_OF_MUTATIONS; j++)
+                    for (var j = 0; j < TspInstanceConstants.NUMBER_OF_MUTATIONS; j++)
                     {
                         mutated.Add(Mutate(mutation, left.Select(p => p).ToList()));
                     }
@@ -153,9 +145,9 @@ namespace TO_1
             var outerPointIndex = 0;
             leftPoints = _allPointConst.Select(p => p).ToList();
 
-            while (outerGroupIndex < NUMBER_OF_GROUPS)
+            while (outerGroupIndex < TspInstanceConstants.NUMBER_OF_GROUPS)
             {
-                while (outerPointIndex < NUMBER_OF_POINTS_PER_GROUP)
+                while (outerPointIndex < TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP)
                 {
                     byte innerGroupIndex = 0;
                     var outerPoint = outerResult[outerGroupIndex][outerPointIndex];
@@ -163,15 +155,15 @@ namespace TO_1
                     while (innerResult[innerGroupIndex].Contains(outerPoint) == false)
                     {
                         innerGroupIndex++;
-                        if (innerGroupIndex == NUMBER_OF_GROUPS)
+                        if (innerGroupIndex == TspInstanceConstants.NUMBER_OF_GROUPS)
                         {
                             throw new AmbiguousMatchException("Nie znaleziono punktu!?:O");
                         }
                     }
                     // we know in which group is our point.
                     var innerPointIndex = innerResult[innerGroupIndex].IndexOf(outerPoint);
-                    var outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
-                    var innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
+                    var outerNextPointIndex = (outerPointIndex + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
+                    var innerNextPointIndex = (innerPointIndex + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
 
                     // did we find similar path in two results?
                     if (outerResult[outerGroupIndex][outerNextPointIndex] == innerResult[innerGroupIndex][innerNextPointIndex])
@@ -195,8 +187,8 @@ namespace TO_1
                             outerPointIndex++;
 
                             // moove to the next point
-                            outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
-                            innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
+                            outerNextPointIndex = (outerPointIndex + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
+                            innerNextPointIndex = (innerPointIndex + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
                         }
 
                         result.Add(tmp);
@@ -218,14 +210,14 @@ namespace TO_1
             var random = new Random();
             var result = new Dictionary<byte, IList<Point>>();
 
-            for (byte i = 0; i < NUMBER_OF_GROUPS; i++)
+            for (byte i = 0; i < TspInstanceConstants.NUMBER_OF_GROUPS; i++)
             {
                 result.Add(i, new List<Point>(25));
             }
 
             var listIndex = random.Next(intersectedPaths.Count);
-            var startIndex = random.Next(NUMBER_OF_POINTS_PER_GROUP);
-            var groupIndex = (byte)random.Next(NUMBER_OF_GROUPS);
+            var startIndex = random.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
+            var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
 
             while (intersectedPaths.Count > 0)
             {
@@ -244,8 +236,8 @@ namespace TO_1
                 if (intersectedPaths.Count > 0)
                 {
                     listIndex = random.Next(intersectedPaths.Count);
-                    startIndex = random.Next(NUMBER_OF_POINTS_PER_GROUP);
-                    groupIndex = (byte) random.Next(NUMBER_OF_GROUPS);
+                    startIndex = random.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
+                    groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 }
             }
 
@@ -257,15 +249,15 @@ namespace TO_1
             while (leftPoints.Count > 0)
             {
                 var random = new Random();
-                var groupIndex = (byte)random.Next(NUMBER_OF_GROUPS);
+                var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 // Choose a group where we can add something!
                 while (result[groupIndex].Count >= 25)
                 {
-                    groupIndex = (byte)random.Next(NUMBER_OF_GROUPS);
+                    groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 }
 
                 // where to put the point? (Which empty place should we fill?)
-                var skipSteps = random.Next(NumberOfPoints / NUMBER_OF_GROUPS);
+                var skipSteps = random.Next(NumberOfPoints / TspInstanceConstants.NUMBER_OF_GROUPS);
                 // simple iterator
                 var i = 0;
                 // Id on the list where we will put choosen point
@@ -305,7 +297,7 @@ namespace TO_1
             while (true)
             {
                 bool continueLS = false;
-                for (int i = 0; i < LS_REPEAT_VALUE; i++)
+                for (int i = 0; i < TspInstanceConstants.LS_REPEAT_VALUE; i++)
                 {
                     GeneratePointsToBeMoved(out pointsToBeMoved, out paths, out target);
                     long distance = paths.Sum(p => p.Distance);
@@ -339,7 +331,7 @@ namespace TO_1
 
         private void GeneratePointsToBeMoved(out List<Point> pointsToBeMoved, out IList<Path> paths, out IList<Path> target)
         {
-            int k = K_VALUE;
+            int k = TspInstanceConstants.K_VALUE;
 
             Random r = new Random();
             int id = r.Next(NumberOfPoints);
@@ -593,14 +585,14 @@ namespace TO_1
             }
         }
 
-        internal void WriteSolution(StreamWriter sol)
+        internal void WriteSolution(IDictionary<byte, IList<Point>> result, StreamWriter sol)
         {
             for (byte k = 0; k < 4; k++)
             {
-                int count = pointsDict[k].Count;
-                for (int i = 0; i < count; i++)
+                int count = result[k].Count;
+                for (var i = 0; i < count; i++)
                 {
-                    sol.WriteLine(pointsDict[k][i].id.ToString());// + " " + pointsDict[k][i].x.ToString() + " " + pointsDict[k][i].y.ToString() + " dist " + pointsDict[k][i].Distance(pointsDict[k][Math.Max(0,i-1)]));
+                    sol.WriteLine(result[k][i].id.ToString());// + " " + pointsDict[k][i].x.ToString() + " " + pointsDict[k][i].y.ToString() + " dist " + pointsDict[k][i].Distance(pointsDict[k][Math.Max(0,i-1)]));
 
                 }
                 sol.WriteLine();
