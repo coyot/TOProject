@@ -188,7 +188,6 @@ namespace TO_1
                 outerPointIndex = 0;
             }
 
-            leftPoints = null;
             return result;
         }
 
