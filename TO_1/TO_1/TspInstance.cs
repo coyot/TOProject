@@ -23,6 +23,10 @@ namespace TO_1
         private static byte NUMBER_OF_GROUPS = 4;
         private static int NUMBER_OF_POINTS_PER_GROUP = 25;
 
+        private static int NUMBER_OF_MUTATIONS = 10;
+        private static int NUMBER_OF_PRE_MUTATIONS = 10;
+        private static int NUMBER_OF_HEA_RUNS = 1000;
+
         public Group[] groups = new Group[4];
 
         public TspInstance()
@@ -101,19 +105,54 @@ namespace TO_1
             presol.Close();
         }
 
+        public void CalculateHeuristicEvolutionaryAlgorithm()
+        {
+            IList<IDictionary<byte, IList<Point>>> results = null;
+            IList<Point> left;
+
+            for (var i = 0; i < NUMBER_OF_HEA_RUNS; i++)
+            {
+                // recombinate two chosen results!;->
+                var commonPaths = Recombination(results[0], results[1], out left);
+                var preMutated = new List<IDictionary<byte, IList<Point>>>();
+
+
+                // Prepare start resolution...
+                for (var j = 0; j < NUMBER_OF_PRE_MUTATIONS; j++)
+                {
+                    preMutated.Add(PrepareForMutationByChance(commonPaths));
+                }
+
+                var mutated = new List<IDictionary<byte, IList<Point>>>();
+
+
+                // now we mutate!!
+                foreach (var mutation in mutated)
+                {
+                    for (var j = 0; j < NUMBER_OF_MUTATIONS; j++)
+                    {
+                        mutated.Add(Mutate(mutation, left.Select(p => p).ToList()));
+                    }
+                }
+
+                results = mutated.OrderBy(r => r.Distance(NumberOfPoints)).Take(2).ToList();
+
+            }
+        }
+
         private void CalculateDistance(IDictionary<byte, IList<Point>> result)
         {
             for (byte i = 0; i < 4; i++)
             {
                 distance[i] = 0;
-                for (int k = 1; k < NumberOfPoints / 4; k++)
+                for (var k = 1; k < NumberOfPoints / 4; k++)
                 {
-                    distance[i] += result[i][k - 1].Distance(pointsDict[i][k]);
+                    distance[i] += result[i][k - 1].Distance(result[i][k]);
                 }
             }
             for (byte i = 0; i < 4; i++)
             {
-                distance[i] += result[i].First().Distance(pointsDict[i].Last());
+                distance[i] += result[i].First().Distance(result[i].Last());
             }
         }
 
@@ -191,7 +230,7 @@ namespace TO_1
             return result;
         }
 
-        private IDictionary<byte, IList<Point>> PrepareForMutationByChance(IList<IList<Point>> intersectedPaths)
+        private static IDictionary<byte, IList<Point>> PrepareForMutationByChance(IList<IList<Point>> intersectedPaths)
         {
             var random = new Random();
             var result = new Dictionary<byte, IList<Point>>();
@@ -229,8 +268,6 @@ namespace TO_1
 
             return result;
         }
-
-
 
         private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
         {
