@@ -16,16 +16,16 @@ namespace TO_1
         public int NumberOfPoints;
         public IDictionary<byte, IList<Point>> pointsDict;
         public IDictionary<Point, byte> newPointDict;
-        int[] distance = new int[4];
-        private static int LS_REPEAT_VALUE = 30;
-        private static int K_VALUE = 4;
-        private static bool WRITE_PRE_SOLUTION = false;
-        private static byte NUMBER_OF_GROUPS = 4;
-        private static int NUMBER_OF_POINTS_PER_GROUP = 25;
+        //int[] distance = new int[4];
+        private const int LS_REPEAT_VALUE = 30;
+        private const int K_VALUE = 4;
+        private const bool WRITE_PRE_SOLUTION = false;
+        private const byte NUMBER_OF_GROUPS = 4;
+        private const int NUMBER_OF_POINTS_PER_GROUP = 25;
 
-        private static int NUMBER_OF_MUTATIONS = 10;
-        private static int NUMBER_OF_PRE_MUTATIONS = 10;
-        private static int NUMBER_OF_HEA_RUNS = 1000;
+        private const int NUMBER_OF_MUTATIONS = 10;
+        private const int NUMBER_OF_PRE_MUTATIONS = 10;
+        private const int NUMBER_OF_HEA_RUNS = 100;
 
         public Group[] groups = new Group[4];
 
@@ -61,16 +61,14 @@ namespace TO_1
 
                 if (WRITE_PRE_SOLUTION)
                 {
-                    CalculateDistance(pointsDict);
                     WriteSolution(presol);
-                    res.WriteLine(distance.Sum(p => p).ToString());
+                    res.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
                 CalculateLocalSearch();
             }
-            CalculateDistance(pointsDict);
             WriteSolution(sol);
-            res.WriteLine(distance.Sum(p => p).ToString());
+            res.WriteLine(pointsDict.Distance(NumberOfPoints));
 
             sol.Close();
             res.Close();
@@ -89,16 +87,15 @@ namespace TO_1
 
                 if (WRITE_PRE_SOLUTION)
                 {
-                    CalculateDistance(pointsDict);
                     WriteSolution(presol);
-                    res.WriteLine(distance.Sum(p => p).ToString());
+                    res.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
                 CalculateLocalSearch();
             }
-            CalculateDistance(pointsDict);
+
             WriteSolution(sol);
-            res.WriteLine(distance.Sum(p => p).ToString());
+            res.WriteLine(pointsDict.Distance(NumberOfPoints));
 
             sol.Close();
             res.Close();
@@ -110,6 +107,8 @@ namespace TO_1
             IList<IDictionary<byte, IList<Point>>> results = null;
             IList<Point> left;
 
+
+            // consider using some sort of timer here as well!! mayme by making it a thread?
             for (var i = 0; i < NUMBER_OF_HEA_RUNS; i++)
             {
                 // recombinate two chosen results!;->
@@ -125,7 +124,6 @@ namespace TO_1
 
                 var mutated = new List<IDictionary<byte, IList<Point>>>();
 
-
                 // now we mutate!!
                 foreach (var mutation in mutated)
                 {
@@ -137,22 +135,7 @@ namespace TO_1
 
                 results = mutated.OrderBy(r => r.Distance(NumberOfPoints)).Take(2).ToList();
 
-            }
-        }
-
-        private void CalculateDistance(IDictionary<byte, IList<Point>> result)
-        {
-            for (byte i = 0; i < 4; i++)
-            {
-                distance[i] = 0;
-                for (var k = 1; k < NumberOfPoints / 4; k++)
-                {
-                    distance[i] += result[i][k - 1].Distance(result[i][k]);
-                }
-            }
-            for (byte i = 0; i < 4; i++)
-            {
-                distance[i] += result[i].First().Distance(result[i].Last());
+                // here we should run the LS on each of the results!
             }
         }
 
@@ -645,14 +628,14 @@ namespace TO_1
                     pos = pointsDict[i].IndexOf(tmpPoint);
                     pointsDict[i][pos] = pointsDict[i][k];
                     pointsDict[i][k] = tmpPoint;
-                    distance[i] += pointsDict[i][k - 1].Distance(pointsDict[i][k]);
+                    //distance[i] += pointsDict[i][k - 1].Distance(pointsDict[i][k]);
                 }
             }
 
-            for (byte i = 0; i < 4; i++)
-            {
-                distance[i] += pointsDict[i].First().Distance(pointsDict[i].Last());
-            }
+            //for (byte i = 0; i < 4; i++)
+            //{
+            //    distance[i] += pointsDict[i].First().Distance(pointsDict[i].Last());
+            //}
         }
 
 
