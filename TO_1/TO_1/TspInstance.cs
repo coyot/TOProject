@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
@@ -19,6 +20,7 @@ namespace TO_1
         private static int K_VALUE = 4;
         private static bool WRITE_PRE_SOLUTION = false;
         private static byte NUMBER_OF_GROUPS = 4;
+        private static int NUMBER_OF_POINTS_PER_GROUP = 25;
 
         public Group[] groups = new Group[4];
 
@@ -114,12 +116,63 @@ namespace TO_1
         /// <summary>
         /// To be used in the HEA for recombination procces
         /// </summary>
-        /// <param name="list1">First result</param>
-        /// <param name="list2">Second result</param>
+        /// <param name="outerList">First result</param>
+        /// <param name="innerList">Second result</param>
         /// <returns>Recombination of two results passed as arguments</returns>
-        private IDictionary<byte, IList<Point>> Recombination(IDictionary<byte, IList<Point>> list1, IDictionary<byte, IList<Point>> list2)
+        private IList<IList<Point>> Recombination(IDictionary<byte, IList<Point>> outerList, IDictionary<byte, IList<Point>> innerList, out IList<Point> leftPoints)
         {
-            return null;
+            IList<IList<Point>> result = new List<IList<Point>>();
+            byte outerGroupIndex = 0;
+            var outerPointIndex = 0;
+
+            while (outerGroupIndex < NUMBER_OF_GROUPS)
+            {
+                while (outerPointIndex < NUMBER_OF_POINTS_PER_GROUP)
+                {
+                    byte innerGroupIndex = 0;
+                    var outerPoint = outerList[outerGroupIndex][outerPointIndex];
+
+                    while (innerList[innerGroupIndex].Contains(outerPoint) == false)
+                    {
+                        innerGroupIndex++;
+                        if (innerGroupIndex >= NUMBER_OF_GROUPS)
+                        {
+                            throw new AmbiguousMatchException("Nie znaleziono punktu!?:O");
+                        }
+                    }
+                    // we know in which group is our point.
+                    var innerPointIndex = innerList[innerGroupIndex].IndexOf(outerPoint);
+                    var outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
+                    var innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
+
+                    if (outerList[outerGroupIndex][outerNextPointIndex] == innerList[innerGroupIndex][innerNextPointIndex])
+                    {
+                        var tmp = new List<Point>
+                                               { 
+                            outerList[outerGroupIndex][outerPointIndex]
+                        };
+
+                        while (outerList[outerGroupIndex][outerNextPointIndex] == innerList[innerGroupIndex][innerNextPointIndex])
+                        {
+                            tmp.Add(outerList[outerGroupIndex][outerNextPointIndex]);
+
+                            outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
+                            innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
+                        }
+
+                        result.Add(tmp);
+                    }
+
+                    outerPointIndex++;
+                }
+
+                // reset indexes!
+                outerGroupIndex++;
+                outerPointIndex = 0;
+            }
+
+            leftPoints = null;
+            return result;
         }
 
         private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
@@ -127,15 +180,15 @@ namespace TO_1
             while (leftPoints.Count > 0)
             {
                 var random = new Random();
-                var groupIndex = (byte) random.Next(NUMBER_OF_GROUPS);
+                var groupIndex = (byte)random.Next(NUMBER_OF_GROUPS);
                 // Choose a group where we can add something!
                 while (result[groupIndex].Count >= 25)
                 {
-                    groupIndex = (byte) random.Next(NUMBER_OF_GROUPS);
+                    groupIndex = (byte)random.Next(NUMBER_OF_GROUPS);
                 }
 
                 // where to put the point? (Which empty place should we fill?)
-                var skipSteps = random.Next(NumberOfPoints/NUMBER_OF_GROUPS);
+                var skipSteps = random.Next(NumberOfPoints / NUMBER_OF_GROUPS);
                 // simple iterator
                 var i = 0;
                 // Id on the list where we will put choosen point
