@@ -12,6 +12,7 @@ namespace TO_1
     {
         CenterOfMass centerOfMass;
         IList<Point> allPoints;
+        private IList<Point> _allPointConst;
         public int NumberOfPoints;
         public IDictionary<byte, IList<Point>> pointsDict;
         public IDictionary<Point, byte> newPointDict;
@@ -27,13 +28,16 @@ namespace TO_1
         public TspInstance()
         {
             allPoints = new List<Point>();
+            _allPointConst = new List<Point>();
             NumberOfPoints = 0;
             pointsDict = new Dictionary<byte, IList<Point>>();
         }
 
         public void AddPoint(string[] input)
         {
-            allPoints.Add(new Point(input));
+            var point = new Point(input);
+            allPoints.Add(point);
+            _allPointConst.Add(point);
             NumberOfPoints++;
             centerOfMass = new CenterOfMass();
         }
@@ -118,12 +122,14 @@ namespace TO_1
         /// </summary>
         /// <param name="outerList">First result</param>
         /// <param name="innerList">Second result</param>
+        /// <param name="leftPoints">Which point are left - we will add them later, when Mutation will happen</param>
         /// <returns>Recombination of two results passed as arguments</returns>
         private IList<IList<Point>> Recombination(IDictionary<byte, IList<Point>> outerList, IDictionary<byte, IList<Point>> innerList, out IList<Point> leftPoints)
         {
             IList<IList<Point>> result = new List<IList<Point>>();
             byte outerGroupIndex = 0;
             var outerPointIndex = 0;
+            leftPoints = _allPointConst.Select(p => p).ToList();
 
             while (outerGroupIndex < NUMBER_OF_GROUPS)
             {
@@ -153,9 +159,15 @@ namespace TO_1
                             outerList[outerGroupIndex][outerPointIndex]
                         };
 
+                        // Remove that point from ALL POINTS LIST - we have used this point, so it is not "free"
+                        leftPoints.Remove(outerList[outerGroupIndex][outerPointIndex]);
+
                         while (outerList[outerGroupIndex][outerNextPointIndex] == innerList[innerGroupIndex][innerNextPointIndex])
                         {
                             tmp.Add(outerList[outerGroupIndex][outerNextPointIndex]);
+
+                            // Remove that point from ALL POINTS LIST - we have used this point, so it is not "free"
+                            leftPoints.Remove(outerList[outerGroupIndex][outerNextPointIndex]);
 
                             // skip points which we have already added
                             outerPointIndex++;
