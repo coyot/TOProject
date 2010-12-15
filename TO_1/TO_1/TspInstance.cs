@@ -57,14 +57,14 @@ namespace TO_1
 
                 if (WRITE_PRE_SOLUTION)
                 {
-                    CalculateDistance();
+                    CalculateDistance(pointsDict);
                     WriteSolution(presol);
                     res.WriteLine(distance.Sum(p => p).ToString());
                 }
 
                 CalculateLocalSearch();
             }
-            CalculateDistance();
+            CalculateDistance(pointsDict);
             WriteSolution(sol);
             res.WriteLine(distance.Sum(p => p).ToString());
 
@@ -85,14 +85,14 @@ namespace TO_1
 
                 if (WRITE_PRE_SOLUTION)
                 {
-                    CalculateDistance();
+                    CalculateDistance(pointsDict);
                     WriteSolution(presol);
                     res.WriteLine(distance.Sum(p => p).ToString());
                 }
 
                 CalculateLocalSearch();
             }
-            CalculateDistance();
+            CalculateDistance(pointsDict);
             WriteSolution(sol);
             res.WriteLine(distance.Sum(p => p).ToString());
 
@@ -101,30 +101,30 @@ namespace TO_1
             presol.Close();
         }
 
-        private void CalculateDistance()
+        private void CalculateDistance(IDictionary<byte, IList<Point>> result)
         {
             for (byte i = 0; i < 4; i++)
             {
                 distance[i] = 0;
                 for (int k = 1; k < NumberOfPoints / 4; k++)
                 {
-                    distance[i] += pointsDict[i][k - 1].Distance(pointsDict[i][k]);
+                    distance[i] += result[i][k - 1].Distance(pointsDict[i][k]);
                 }
             }
             for (byte i = 0; i < 4; i++)
             {
-                distance[i] += pointsDict[i].First().Distance(pointsDict[i].Last());
+                distance[i] += result[i].First().Distance(pointsDict[i].Last());
             }
         }
 
         /// <summary>
         /// To be used in the HEA for recombination procces
         /// </summary>
-        /// <param name="outerList">First result</param>
-        /// <param name="innerList">Second result</param>
+        /// <param name="outerResult">First result</param>
+        /// <param name="innerResult">Second result</param>
         /// <param name="leftPoints">Which point are left - we will add them later, when Mutation will happen</param>
         /// <returns>Recombination of two results passed as arguments</returns>
-        private IList<IList<Point>> Recombination(IDictionary<byte, IList<Point>> outerList, IDictionary<byte, IList<Point>> innerList, out IList<Point> leftPoints)
+        private IList<IList<Point>> Recombination(IDictionary<byte, IList<Point>> outerResult, IDictionary<byte, IList<Point>> innerResult, out IList<Point> leftPoints)
         {
             IList<IList<Point>> result = new List<IList<Point>>();
             byte outerGroupIndex = 0;
@@ -136,9 +136,9 @@ namespace TO_1
                 while (outerPointIndex < NUMBER_OF_POINTS_PER_GROUP)
                 {
                     byte innerGroupIndex = 0;
-                    var outerPoint = outerList[outerGroupIndex][outerPointIndex];
+                    var outerPoint = outerResult[outerGroupIndex][outerPointIndex];
 
-                    while (innerList[innerGroupIndex].Contains(outerPoint) == false)
+                    while (innerResult[innerGroupIndex].Contains(outerPoint) == false)
                     {
                         innerGroupIndex++;
                         if (innerGroupIndex == NUMBER_OF_GROUPS)
@@ -147,27 +147,27 @@ namespace TO_1
                         }
                     }
                     // we know in which group is our point.
-                    var innerPointIndex = innerList[innerGroupIndex].IndexOf(outerPoint);
+                    var innerPointIndex = innerResult[innerGroupIndex].IndexOf(outerPoint);
                     var outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
                     var innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
 
                     // did we find similar path in two results?
-                    if (outerList[outerGroupIndex][outerNextPointIndex] == innerList[innerGroupIndex][innerNextPointIndex])
+                    if (outerResult[outerGroupIndex][outerNextPointIndex] == innerResult[innerGroupIndex][innerNextPointIndex])
                     {
                         var tmp = new List<Point>
                         { 
-                            outerList[outerGroupIndex][outerPointIndex]
+                            outerResult[outerGroupIndex][outerPointIndex]
                         };
 
                         // Remove that point from ALL POINTS LIST - we have used this point, so it is not "free"
-                        leftPoints.Remove(outerList[outerGroupIndex][outerPointIndex]);
+                        leftPoints.Remove(outerResult[outerGroupIndex][outerPointIndex]);
 
-                        while (outerList[outerGroupIndex][outerNextPointIndex] == innerList[innerGroupIndex][innerNextPointIndex])
+                        while (outerResult[outerGroupIndex][outerNextPointIndex] == innerResult[innerGroupIndex][innerNextPointIndex])
                         {
-                            tmp.Add(outerList[outerGroupIndex][outerNextPointIndex]);
+                            tmp.Add(outerResult[outerGroupIndex][outerNextPointIndex]);
 
                             // Remove that point from ALL POINTS LIST - we have used this point, so it is not "free"
-                            leftPoints.Remove(outerList[outerGroupIndex][outerNextPointIndex]);
+                            leftPoints.Remove(outerResult[outerGroupIndex][outerNextPointIndex]);
 
                             // skip points which we have already added
                             outerPointIndex++;
@@ -190,6 +190,47 @@ namespace TO_1
 
             return result;
         }
+
+        private IDictionary<byte, IList<Point>> PrepareForMutationByChance(IList<IList<Point>> intersectedPaths)
+        {
+            var random = new Random();
+            var result = new Dictionary<byte, IList<Point>>();
+
+            for (byte i = 0; i < NUMBER_OF_GROUPS; i++)
+            {
+                result.Add(i, new List<Point>(25));
+            }
+
+            var listIndex = random.Next(intersectedPaths.Count);
+            var startIndex = random.Next(NUMBER_OF_POINTS_PER_GROUP);
+            var groupIndex = (byte)random.Next(NUMBER_OF_GROUPS);
+
+            while (intersectedPaths.Count > 0)
+            {
+                var choosen = intersectedPaths[listIndex];
+                var possible = !choosen.Where((t, i) => result[groupIndex][startIndex + i] != null).Any();
+
+                if (possible)
+                {
+                    for (var i = 0; i < choosen.Count; i++)
+                    {
+                        result[groupIndex][startIndex + i] = choosen[i];
+                    }
+                    intersectedPaths.Remove(choosen);
+                }
+
+                if (intersectedPaths.Count > 0)
+                {
+                    listIndex = random.Next(intersectedPaths.Count);
+                    startIndex = random.Next(NUMBER_OF_POINTS_PER_GROUP);
+                    groupIndex = (byte) random.Next(NUMBER_OF_GROUPS);
+                }
+            }
+
+            return result;
+        }
+
+
 
         private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
         {
