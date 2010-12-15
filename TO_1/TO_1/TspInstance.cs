@@ -135,7 +135,7 @@ namespace TO_1
                     while (innerList[innerGroupIndex].Contains(outerPoint) == false)
                     {
                         innerGroupIndex++;
-                        if (innerGroupIndex >= NUMBER_OF_GROUPS)
+                        if (innerGroupIndex == NUMBER_OF_GROUPS)
                         {
                             throw new AmbiguousMatchException("Nie znaleziono punktu!?:O");
                         }
@@ -145,10 +145,11 @@ namespace TO_1
                     var outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
                     var innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
 
+                    // did we find similar path in two results?
                     if (outerList[outerGroupIndex][outerNextPointIndex] == innerList[innerGroupIndex][innerNextPointIndex])
                     {
                         var tmp = new List<Point>
-                                               { 
+                        { 
                             outerList[outerGroupIndex][outerPointIndex]
                         };
 
@@ -156,6 +157,10 @@ namespace TO_1
                         {
                             tmp.Add(outerList[outerGroupIndex][outerNextPointIndex]);
 
+                            // skip points which we have already added
+                            outerPointIndex++;
+
+                            // moove to the next point
                             outerNextPointIndex = (outerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
                             innerNextPointIndex = (innerPointIndex + 1) % NUMBER_OF_POINTS_PER_GROUP;
                         }
