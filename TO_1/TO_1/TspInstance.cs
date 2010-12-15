@@ -18,6 +18,7 @@ namespace TO_1
         private static int LS_REPEAT_VALUE = 30;
         private static int K_VALUE = 4;
         private static bool WRITE_PRE_SOLUTION = false;
+        private static byte NUMBER_OF_GROUPS = 4;
 
         public Group[] groups = new Group[4];
 
@@ -108,6 +109,58 @@ namespace TO_1
             {
                 distance[i] += pointsDict[i].First().Distance(pointsDict[i].Last());
             }
+        }
+
+        /// <summary>
+        /// To be used in the HEA for recombination procces
+        /// </summary>
+        /// <param name="list_1">First result</param>
+        /// <param name="list_2">Second result</param>
+        /// <returns>Recombination of two results passed as arguments</returns>
+        private IDictionary<byte, IList<Point>> Recombination(IDictionary<byte, IList<Point>> list_1, IDictionary<byte, IList<Point>> list_2)
+        {
+            return null;
+        }
+
+        private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
+        {
+            var rand = new Random();
+            while (leftPoints.Count != 0)
+            {
+                var groupIndex = (byte)rand.Next(NUMBER_OF_GROUPS);
+                // Choose a group where we can add something!s
+                while (result[groupIndex].Count >= 25)
+                {
+                    groupIndex = (byte) rand.Next(NUMBER_OF_GROUPS);
+                }
+
+                // where to put the point? (Which empty place should we fill?)
+                var skipSteps = rand.Next(NumberOfPoints/NUMBER_OF_GROUPS);
+                // simple iterator
+                var i = 0;
+                // Id on the list
+                var putItHereId = -1;
+
+                while (skipSteps >= 0)
+                {
+                    if (result[groupIndex][i] == null)
+                    {
+                        skipSteps--;
+                        putItHereId = i;
+                    }
+
+                    i = (i + 1) % 25;
+                }
+
+                // which point?
+                var pointIndex = rand.Next(leftPoints.Count);
+
+                result[groupIndex][putItHereId] = leftPoints[pointIndex];
+                result[groupIndex][putItHereId].groupId = groupIndex;
+                leftPoints.RemoveAt(pointIndex);
+            }
+
+            return result;
         }
 
         private void CalculateLocalSearch()

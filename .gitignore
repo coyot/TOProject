@@ -15,3 +15,5 @@
 *.log
 *.synctex.gz
 *.toc
+/TO_1/TO_1/bin
+/TO_1/TO_1/obj
