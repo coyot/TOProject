@@ -114,49 +114,51 @@ namespace TO_1
         /// <summary>
         /// To be used in the HEA for recombination procces
         /// </summary>
-        /// <param name="list_1">First result</param>
-        /// <param name="list_2">Second result</param>
+        /// <param name="list1">First result</param>
+        /// <param name="list2">Second result</param>
         /// <returns>Recombination of two results passed as arguments</returns>
-        private IDictionary<byte, IList<Point>> Recombination(IDictionary<byte, IList<Point>> list_1, IDictionary<byte, IList<Point>> list_2)
+        private IDictionary<byte, IList<Point>> Recombination(IDictionary<byte, IList<Point>> list1, IDictionary<byte, IList<Point>> list2)
         {
             return null;
         }
 
         private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
         {
-            var rand = new Random();
-            while (leftPoints.Count != 0)
+            while (leftPoints.Count > 0)
             {
-                var groupIndex = (byte)rand.Next(NUMBER_OF_GROUPS);
-                // Choose a group where we can add something!s
+                var random = new Random();
+                var groupIndex = (byte) random.Next(NUMBER_OF_GROUPS);
+                // Choose a group where we can add something!
                 while (result[groupIndex].Count >= 25)
                 {
-                    groupIndex = (byte) rand.Next(NUMBER_OF_GROUPS);
+                    groupIndex = (byte) random.Next(NUMBER_OF_GROUPS);
                 }
 
                 // where to put the point? (Which empty place should we fill?)
-                var skipSteps = rand.Next(NumberOfPoints/NUMBER_OF_GROUPS);
+                var skipSteps = random.Next(NumberOfPoints/NUMBER_OF_GROUPS);
                 // simple iterator
                 var i = 0;
-                // Id on the list
-                var putItHereId = -1;
+                // Id on the list where we will put choosen point
+                var putItHereIndex = -1;
 
                 while (skipSteps >= 0)
                 {
+                    // empty place - we count it in..
                     if (result[groupIndex][i] == null)
                     {
                         skipSteps--;
-                        putItHereId = i;
+                        putItHereIndex = i;
                     }
 
+                    // NEEEXT!
                     i = (i + 1) % 25;
                 }
 
                 // which point?
-                var pointIndex = rand.Next(leftPoints.Count);
+                var pointIndex = random.Next(leftPoints.Count);
 
-                result[groupIndex][putItHereId] = leftPoints[pointIndex];
-                result[groupIndex][putItHereId].groupId = groupIndex;
+                result[groupIndex][putItHereIndex] = leftPoints[pointIndex];
+                result[groupIndex][putItHereIndex].groupId = groupIndex;
                 leftPoints.RemoveAt(pointIndex);
             }
 
