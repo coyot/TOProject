@@ -210,6 +210,7 @@ Algorytm generowania rozwiązania można zapisać przy pomocy poniższego pseudo
 	\li \End
 	
 \end{codebox}
+
 \subsection{Wyniki}
 W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
 \begin{itemize}
@@ -234,7 +235,7 @@ W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
 \hline
   \end{tabular}
 \end{center}
-\caption{Uœrednione wyniki pomiarów.} \label{tab:wynikils}
+\caption{Uśrednione wyniki pomiarów.} \label{tab:wynikils}
 \end{table}
 
 \subsection{Rysunki najlepszych rozwiązań}
@@ -247,5 +248,33 @@ Na poniższych rysunkach przedstawione zostały rozwiązania wygenerowane przy p
 \centering\includegraphics[width=17cm]{img/rys3.png}
 \caption{Rozwiązanie RP+LS dla \emph{kroB100.txt}}
 \end{figure}
+
+
+\section{Heurystyczny Algorytm Ewolucyjny (HEA)}
+\subsection{Wstęp}
+
+\subsection{Opis słowny metody}
+
+\subsection{Pseudokod}
+\begin{codebox}
+	\Procname{$\proc{Heurystyczny Algorytm Ewolucyjny}(\id{czas})$}
+	\li $\id{populacja\_rozwiązań} \gets  \proc{Generuj populację początkową}(\mathcal{V})$
+	\li \While (\const{true})
+	\li \Do 
+	\li $\id{do\_ewolucji} \gets \proc{Wybór rozwiązań do ewolucji} (\id{populacja\_rozwiązań})  $
+	\li $\id{wspólne\_ściezki} \gets \proc{Rekombinacja losowych par} (\id{do\_ewolucji}) $
+	\li $\id{dodatkowa\_populacja} \gets \proc{Mutacja} (\id{wspólne\_ścieżki}, \id{pozostałe\_punkty}) $
+	\li $\id{populacja\_rozwiązań} \gets \id{populacja\_rozwiązań} \cup \id{dodatkowa\_populacja} $
+	\li $\proc{Ograniczenie przestrzeni rozwiązań} (\id{populacja\_rozwiązań}) $
+	\li \If $\id{czas\_trwania\_algorytmu} > \id{czas}$
+		\li \Then
+			\li $\proc{Przerwij algorytm}()$
+		\End
+	\li \End
+	\li $\id{rezultat} \gets \proc{Wybór najlepszego rozwiązania} (\id{populacja\_rozwiązań})$	
+	
+\end{codebox}
+
+\subsection{Eksperymenty i wyniki}
 
 \end{document}
