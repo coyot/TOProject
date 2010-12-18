@@ -254,16 +254,43 @@ Na poniższych rysunkach przedstawione zostały rozwiązania wygenerowane przy p
 \subsection{Wstęp}
 
 \subsection{Opis słowny metody}
+Algorytm rozpoczyna się od wygenerowania pewnej populacji początkowej - przeprowadzane są kroki opisane we wcześniejszych roździałach. Oprócz wykorzystania LS przy budowie wstępnej populacji, wykorzystuje się go również do optymalizacji rozwiązań otrzymywanych w populacji rozwiązań po przeprowadzaniu mutacji.
+
+Kroki algorytmu powtarzane są do momentu, w którym przekroczony zostanie dostępny na obliczenia czas - który to jest parametrem wejściowym do algorytmu. W testach (zgodnie z poleceniem prowadzącego) przyjęto wartość 30 sekund (bądź 60, dla bardziej rozbudowanego zestawu danych testowych). 
+
+Pierwszy krok, to wybór rozwiązań z populacji rozwiązań, które poddawane będą ewolucji. Dokonuje się to przy pomocy losowego wyborów elementów dostępnych w populacji. Należy podkreślić, że liczba wybranych rozwiązań jest parametrem definiowalnym dla algorytmu.
+
+Drugi krok to dokonanie rekombinacji na parach (losowo dobieranych) z rozwiązań wybranych w kroku poprzednim.
+
+Następny krok to mutacja, którą logicznie można podzielić na dwa etapy:
+	\begin{itemize}
+		\item \emph{premutacja} - czyli opracowanie wstępnych rozwiązań na podstawie dostarczonych list wspólnych ścieżek dla par rozwiązań,
+		\item \emph{właściwa mutacja} - czyli losowe wypełnienie brakujących połączeń punktami, które nie znajdują się na żadnej ze wspólnych scieżek.
+	\end{itemize}
+	
+Każdy z tych etapów może być konfigurowalny parametrami, które definiują liczbę generowanych rozwiązań na poszczególnych etapach. Pozwala to w elastyczny sposób zarządzać przestrzenią rozwiązań, tak by nie rozrastała się ona w zbyt szybkim tempie.
+
+Ostatni etap, to ograniczenie przestrzeni rozwiązań, tak by nie rozrastała się ona w zbyt intensywnym tempie - chodzi o ograniczenia pamięciowe poszczególnych maszyn testowych. Także i w tym wypadku definiuje się parametr wejściowy, który określa maksymalny rozmiar populacji rozwiązań algorytmu ewolucyjnego.
 
 \subsection{Pseudokod}
+Wcześniej zdefiniowane wartości:
+	
+	\begin{codebox}
+		\li $\id{max\_rozmiar\_populacji}$
+		\li $\id{liczba\_rozwiązań\_do\_ewolucji}$
+		\li $\id{liczba\_premutacji}$
+		\li $\id{liczba\_mutacji}$
+	\end{codebox}
+
 \begin{codebox}
-	\Procname{$\proc{Heurystyczny Algorytm Ewolucyjny}(\id{czas})$}
+	\Procname{$\proc{Heurystyczny Algorytm Ewolucyjny}(\id{max\_czas})$}
 	\li $\id{populacja\_rozwiązań} \gets  \proc{Generuj populację początkową}(\mathcal{V})$
 	\li \While (\const{true})
 	\li \Do 
 	\li $\id{do\_ewolucji} \gets \proc{Wybór rozwiązań do ewolucji} (\id{populacja\_rozwiązań})  $
 	\li $\id{wspólne\_ściezki} \gets \proc{Rekombinacja losowych par} (\id{do\_ewolucji}) $
 	\li $\id{dodatkowa\_populacja} \gets \proc{Mutacja} (\id{wspólne\_ścieżki}, \id{pozostałe\_punkty}) $
+	\li $\id{dodatkowa\_populacja} \gets \proc{Lokalne przeszukiwanie na populacji}(\id{dodatkowa\_populacja})$
 	\li $\id{populacja\_rozwiązań} \gets \id{populacja\_rozwiązań} \cup \id{dodatkowa\_populacja} $
 	\li $\proc{Ograniczenie przestrzeni rozwiązań} (\id{populacja\_rozwiązań}) $
 	\li \If $\id{czas\_trwania\_algorytmu} > \id{czas}$
