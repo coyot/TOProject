@@ -252,6 +252,9 @@ Na poniższych rysunkach przedstawione zostały rozwiązania wygenerowane przy p
 
 \section{Heurystyczny Algorytm Ewolucyjny (HEA)}
 \subsection{Wstęp}
+W ramach wykonania zadania przygotowano implementację Heurystycznego Algorytmu Ewolucyjnego dla problemu komiwojażera.
+
+W kolejnych podrozdziałach przygotowano opis słowny, a także pseudokod rozwiązania w ramach opracowywanego zadania. 
 
 \subsection{Opis słowny metody}
 Algorytm rozpoczyna się od wygenerowania pewnej populacji początkowej - przeprowadzane są kroki opisane we wcześniejszych roździałach. Oprócz wykorzystania LS przy budowie wstępnej populacji, wykorzystuje się go również do optymalizacji rozwiązań otrzymywanych w populacji rozwiązań po przeprowadzaniu mutacji.
@@ -275,17 +278,17 @@ Ostatni etap, to ograniczenie przestrzeni rozwiązań, tak by nie rozrastała si
 \subsection{Pseudokod}
 Wcześniej zdefiniowane wartości:
 	
-	\begin{codebox}
-		\li $\id{max\_rozmiar\_populacji}$
-		\li $\id{liczba\_rozwiązań\_do\_ewolucji}$
-		\li $\id{liczba\_premutacji}$
-		\li $\id{liczba\_mutacji}$
-	\end{codebox}
+\begin{codebox}
+	\li $\id{max\_rozmiar\_populacji}$
+	\li $\id{liczba\_rozwiązań\_do\_ewolucji}$
+	\li $\id{liczba\_premutacji}$
+	\li $\id{liczba\_mutacji}$
+\end{codebox}
 
 Ogólna idea heurystycznego algorytmu ewolucyjnego zaimplementowanego w ramach wykonywania zadania:
 
 \begin{codebox}
-	\Procname{$\proc{Heurystyczny Algorytm Ewolucyjny}(\id{max\_czas})$}
+	\Procname{$\proc{Heurystyczny Algorytm Ewolucyjny}(\mathcal{V}, \id{max\_czas})$}
 	\li $\id{populacja\_rozwiązań} \gets  \proc{Generuj populację początkową}(\mathcal{V})$
 	\li \While (\const{true})
 	\li \Do 
