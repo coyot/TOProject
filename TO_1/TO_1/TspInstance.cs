@@ -17,7 +17,7 @@ namespace TO_1
         //public IDictionary<byte, IList<Point>> pointsDict;
         //public IDictionary<Point, byte> newPointDict;
         //int[] distance = new int[4];
-        int firstToBeMoved = 0;
+        //int firstToBeMoved = 0;
 
 
         public Group[] groups = new Group[4];
@@ -376,7 +376,7 @@ namespace TO_1
 
             Random r = new Random();
             int id = r.Next(NumberOfPoints);
-            id = (firstToBeMoved++)%100;
+            //id = (firstToBeMoved++)%100;
             pointsToBeMoved = new List<Point>();
             var allPoints = CreateAllPoints(pointsDict);
 
@@ -539,11 +539,11 @@ namespace TO_1
                 }
             else
             {
-                foreach (var item in target.Last().points)
-                {
-                    Debug.Write(item.id + " -> ");
-                }
-                Debug.WriteLine(' ');
+                //foreach (var item in target.Last().points)
+                //{
+                //    Debug.Write(item.id + " -> ");
+                //}
+                //Debug.WriteLine(' ');
                 paths = target;
 
             }
@@ -601,8 +601,8 @@ namespace TO_1
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();
-            //int pos = rand.Next(NumberOfPoints);
-            int pos = 43;
+            int pos = rand.Next(NumberOfPoints);
+            //int pos = 43;
             groups[0] = new Group(0);
             pointsDict[0] = new List<Point>();
             pointsDict[0].Add(allPoints[pos]);
@@ -662,7 +662,7 @@ namespace TO_1
             {
                 Random rand = new Random();
                 pos = rand.Next(NumberOfPoints / 4);
-                pos = 0;
+                //pos = 0;
                 tmpPoint = pointsDict[i][0];
                 pointsDict[i][0] = pointsDict[i][pos];
                 pointsDict[i][pos] = tmpPoint;

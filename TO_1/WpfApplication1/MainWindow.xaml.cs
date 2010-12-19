@@ -25,7 +25,7 @@ namespace WpfApplication1
         {
             InitializeComponent();
             draw(@"D:\sol.txt",1.0);
-            draw(@"D:\presol.txt",0.75);
+            //draw(@"D:\presol.txt",0.75);
 
         }
 
