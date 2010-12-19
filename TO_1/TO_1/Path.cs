@@ -7,7 +7,7 @@ namespace TO_1
 {
     public class Path
     {
-        byte groupId;
+        //byte groupId;
         public LinkedList<Point> points;
         public int Distance 
         { 
@@ -42,6 +42,17 @@ namespace TO_1
             points = new LinkedList<Point>();
             _distance = 0;
             this.points.AddFirst(point);
+        }
+
+        public Path(Path path)
+        {
+            points = new LinkedList<Point>();
+            _distance = 0;
+            foreach (var item in path.points)
+            {
+                this.points.AddLast(item);
+            }
+            
         }
     }
 }

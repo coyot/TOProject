@@ -17,6 +17,7 @@ namespace TO_1
         //public IDictionary<byte, IList<Point>> pointsDict;
         //public IDictionary<Point, byte> newPointDict;
         //int[] distance = new int[4];
+        int firstToBeMoved = 0;
 
 
         public Group[] groups = new Group[4];
@@ -338,13 +339,15 @@ namespace TO_1
                 for (int i = 0; i < TspInstanceConstants.LS_REPEAT_VALUE; i++)
                 {
                     GeneratePointsToBeMoved(pointsDict, out pointsToBeMoved, out paths, out target);
+
                     long distance = paths.Sum(p => p.Distance);
 
-                    paths = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
-                    int pathsSum = paths.Sum(p => p.Distance);
+                    target = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
+                    int pathsSum = target.Sum(p => p.Distance);
 
                     if (pathsSum < distance)
                     {
+                        paths = target;
                         continueLS = true;
                         foreach (var path in paths)
                         {
@@ -373,7 +376,7 @@ namespace TO_1
 
             Random r = new Random();
             int id = r.Next(NumberOfPoints);
-            //id = (firstToBeMoved++)%100;
+            id = (firstToBeMoved++)%100;
             pointsToBeMoved = new List<Point>();
             var allPoints = CreateAllPoints(pointsDict);
 
@@ -494,12 +497,12 @@ namespace TO_1
                 }
                 else if (paths[pathNr].points.Count > posNr)
                 {
-                    if (target[pathNr].points.Last.Value.id == p.id)
+                    if (target[pathNr].points.Take(posNr).Contains(p))
                         throw new NotImplementedException("dupa");
                     target[pathNr].points.AddLast(p);
                 }
 
-                if (paths[pathNr].points.Count == posNr + 1)
+                if (paths[pathNr].points.Count == posNr +1)
                 {
                     if (paths[pathNr].points.Count > target[pathNr].points.Count)
                         target[pathNr].points.AddLast(paths[pathNr].points.Last.Value);
@@ -523,17 +526,24 @@ namespace TO_1
                 foreach (Point item in points)
                 {
                     var tmp = points.Except<Point>(new List<Point>() { item }).ToList();
-                    var tmpResult = FindBestAllocation(paths, tmp, target, item, pathNr, posNr);
+
+                    IList<Path> innerTarget = new List<Path>();;
+                    foreach (var path in target)
+                    {
+                        innerTarget.Add(new Path(path));
+                    }
+
+                    var tmpResult = FindBestAllocation(paths, tmp, innerTarget, item, pathNr, posNr);
                     if (ComparePaths(paths, tmpResult))
                         paths = tmpResult;
                 }
             else
             {
-                //foreach (var item in target.First().points)
-                //{
-                //    Debug.Write(item.id + " -> ");
-                //}
-                //Debug.WriteLine(' ');
+                foreach (var item in target.Last().points)
+                {
+                    Debug.Write(item.id + " -> ");
+                }
+                Debug.WriteLine(' ');
                 paths = target;
 
             }
@@ -591,8 +601,8 @@ namespace TO_1
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();
-            int pos = rand.Next(NumberOfPoints);
-            //int pos = 43;
+            //int pos = rand.Next(NumberOfPoints);
+            int pos = 43;
             groups[0] = new Group(0);
             pointsDict[0] = new List<Point>();
             pointsDict[0].Add(allPoints[pos]);
@@ -652,7 +662,7 @@ namespace TO_1
             {
                 Random rand = new Random();
                 pos = rand.Next(NumberOfPoints / 4);
-                //pos = 0;
+                pos = 0;
                 tmpPoint = pointsDict[i][0];
                 pointsDict[i][0] = pointsDict[i][pos];
                 pointsDict[i][pos] = tmpPoint;
