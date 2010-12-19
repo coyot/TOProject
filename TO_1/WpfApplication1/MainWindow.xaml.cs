@@ -122,6 +122,7 @@ namespace WpfApplication1
                     myGrid.Children.Add(myLine);
                     lastPos = pos;
                 }
+                sr.Close();
             }
         }
     }

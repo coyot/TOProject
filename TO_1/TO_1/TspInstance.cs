@@ -14,8 +14,8 @@ namespace TO_1
         IList<Point> allPoints;
         private IList<Point> _allPointConst;
         public int NumberOfPoints;
-        public IDictionary<byte, IList<Point>> pointsDict;
-        public IDictionary<Point, byte> newPointDict;
+        //public IDictionary<byte, IList<Point>> pointsDict;
+        //public IDictionary<Point, byte> newPointDict;
         //int[] distance = new int[4];
 
 
@@ -25,8 +25,7 @@ namespace TO_1
         {
             allPoints = new List<Point>();
             _allPointConst = new List<Point>();
-            NumberOfPoints = 0;
-            pointsDict = new Dictionary<byte, IList<Point>>();
+            NumberOfPoints = 0;            
         }
 
         public void AddPoint(string[] input)
@@ -46,10 +45,10 @@ namespace TO_1
             var res = new StreamWriter("res_rand.txt", true);
             var sol = new StreamWriter(@"D:\sol_rand.txt");
             var presol = new StreamWriter(@"D:\presol_rand.txt");
-
+            IDictionary<byte, IList<Point>> pointsDict;
             using (new Timer("LocalSearch - with RANDOM groups"))
             {
-                CreateRandomGroups();
+                pointsDict = CreateRandomGroups();
 
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
@@ -57,7 +56,7 @@ namespace TO_1
                     res.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
-                CalculateLocalSearch();
+                CalculateLocalSearch(pointsDict);
             }
             WriteSolution(pointsDict, sol);
             res.WriteLine(pointsDict.Distance(NumberOfPoints));
@@ -72,10 +71,11 @@ namespace TO_1
             var res = new StreamWriter("res.txt", true);
             var sol = new StreamWriter(@"D:\sol.txt");
             var presol = new StreamWriter(@"D:\presol.txt");
+            IDictionary<byte, IList<Point>> pointsDict;
             using (new Timer("LocalSearch - with groups production"))
             {
-                CreateGroups();
-                CalculateGroups();
+                pointsDict = CreateGroups();
+                CalculateGroups(pointsDict);
 
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
@@ -83,7 +83,7 @@ namespace TO_1
                     res.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
-                CalculateLocalSearch();
+                CalculateLocalSearch(pointsDict);
             }
 
             WriteSolution(pointsDict, sol);
@@ -325,19 +325,19 @@ namespace TO_1
             return result;
         }
 
-        private void CalculateLocalSearch()
+        private void CalculateLocalSearch(IDictionary<byte, IList<Point>> pointsDict)
         {
             List<Point> pointsToBeMoved;
             IList<Path> paths;
             IList<Path> target;
-            GeneratePointsToBeMoved(out pointsToBeMoved, out paths, out target);
+            //GeneratePointsToBeMoved( pointsDict,out pointsToBeMoved, out paths, out target);
 
             while (true)
             {
                 bool continueLS = false;
                 for (int i = 0; i < TspInstanceConstants.LS_REPEAT_VALUE; i++)
                 {
-                    GeneratePointsToBeMoved(out pointsToBeMoved, out paths, out target);
+                    GeneratePointsToBeMoved(pointsDict, out pointsToBeMoved, out paths, out target);
                     long distance = paths.Sum(p => p.Distance);
 
                     paths = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
@@ -367,7 +367,7 @@ namespace TO_1
 
         }
 
-        private void GeneratePointsToBeMoved(out List<Point> pointsToBeMoved, out IList<Path> paths, out IList<Path> target)
+        private void GeneratePointsToBeMoved(IDictionary<byte, IList<Point>> pointsDict,out List<Point> pointsToBeMoved, out IList<Path> paths, out IList<Path> target)
         {
             int k = TspInstanceConstants.K_VALUE;
 
@@ -375,7 +375,7 @@ namespace TO_1
             int id = r.Next(NumberOfPoints);
             //id = (firstToBeMoved++)%100;
             pointsToBeMoved = new List<Point>();
-            var allPoints = CreateAllPoints();
+            var allPoints = CreateAllPoints(pointsDict);
 
             //pointsDict.ke
             Point firstToMove = allPoints[id];
@@ -545,13 +545,14 @@ namespace TO_1
             return (toRet.Sum(p => p.Distance) > tmpResult.Sum(p => p.Distance));
         }
 
-        private IList<Point> CreateAllPoints()
+        private IList<Point> CreateAllPoints(IDictionary<byte, IList<Point>> pointsDict)
         {
             return pointsDict.Values.SelectMany(item => item).ToList();
         }
 
-        private void CreateRandomGroups()
+        private IDictionary<byte, IList<Point>> CreateRandomGroups()
         {
+            IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             pointsDict[0] = new List<Point>();
             pointsDict[1] = new List<Point>();
             pointsDict[2] = new List<Point>();
@@ -582,10 +583,13 @@ namespace TO_1
 
                 changes--;
             }
+
+            return pointsDict;
         }
 
-        private void CreateGroups()
+        private IDictionary<byte, IList<Point>> CreateGroups()
         {
+            IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();
             int pos = rand.Next(NumberOfPoints);
             //int pos = 43;
@@ -621,6 +625,8 @@ namespace TO_1
                     allPoints.Remove(point);
                 }
             }
+
+            return pointsDict;
         }
 
         internal void WriteSolution(IDictionary<byte, IList<Point>> result, StreamWriter sol)
@@ -637,7 +643,7 @@ namespace TO_1
             }
         }
 
-        public void CalculateGroups()
+        public void CalculateGroups(IDictionary<byte, IList<Point>> pointsDict)
         {
             Point tmpPoint;
 
