@@ -35,7 +35,7 @@ namespace TO_1
             instance.CalculateHea();
 
             // START RANDOM LOCAL SEARCH ALGORITHM
-            //instance2.CalculateRandom();
+            instance2.CalculateRandom();
 
             Console.ReadLine();
 

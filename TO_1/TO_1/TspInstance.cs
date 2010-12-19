@@ -11,19 +11,20 @@ namespace TO_1
     public class TspInstance
     {
         CenterOfMass centerOfMass;
-        IList<Point> allPoints;
+        IList<Point> allPointsForInstance;
         private IList<Point> _allPointConst;
         public int NumberOfPoints;
         //public IDictionary<byte, IList<Point>> pointsDict;
         //public IDictionary<Point, byte> newPointDict;
         //int[] distance = new int[4];
+        //int firstToBeMoved = 0;
 
 
         public Group[] groups = new Group[4];
 
         public TspInstance()
         {
-            allPoints = new List<Point>();
+            allPointsForInstance = new List<Point>();
             _allPointConst = new List<Point>();
             NumberOfPoints = 0;
         }
@@ -31,7 +32,7 @@ namespace TO_1
         public void AddPoint(string[] input)
         {
             var point = new Point(input);
-            allPoints.Add(point);
+            allPointsForInstance.Add(point);
             _allPointConst.Add(point);
             NumberOfPoints++;
             centerOfMass = new CenterOfMass();
@@ -48,7 +49,7 @@ namespace TO_1
             IDictionary<byte, IList<Point>> pointsDict;
             using (new Timer("LocalSearch - with RANDOM groups"))
             {
-                pointsDict = CreateRandomGroups();
+                pointsDict = CreateRandomGroups(new List<Point>(allPointsForInstance));
 
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
@@ -74,7 +75,7 @@ namespace TO_1
             IDictionary<byte, IList<Point>> pointsDict;
             using (new Timer("LocalSearch - with groups production"))
             {
-                pointsDict = CreateGroups();
+                pointsDict = CreateGroups(new List<Point>(allPointsForInstance));
                 CalculateGroups(pointsDict);
 
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
@@ -421,13 +422,15 @@ namespace TO_1
                 for (int i = 0; i < TspInstanceConstants.LS_REPEAT_VALUE; i++)
                 {
                     GeneratePointsToBeMoved(pointsDict, out pointsToBeMoved, out paths, out target);
+
                     long distance = paths.Sum(p => p.Distance);
 
-                    paths = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
-                    int pathsSum = paths.Sum(p => p.Distance);
+                    target = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
+                    int pathsSum = target.Sum(p => p.Distance);
 
                     if (pathsSum < distance)
                     {
+                        paths = target;
                         continueLS = true;
                         foreach (var path in paths)
                         {
@@ -577,12 +580,12 @@ namespace TO_1
                 }
                 else if (paths[pathNr].points.Count > posNr)
                 {
-                    if (target[pathNr].points.Last.Value.id == p.id)
+                    if (target[pathNr].points.Take(posNr).Contains(p))
                         throw new NotImplementedException("dupa");
                     target[pathNr].points.AddLast(p);
                 }
 
-                if (paths[pathNr].points.Count == posNr + 1)
+                if (paths[pathNr].points.Count == posNr +1)
                 {
                     if (paths[pathNr].points.Count > target[pathNr].points.Count)
                         target[pathNr].points.AddLast(paths[pathNr].points.Last.Value);
@@ -606,13 +609,20 @@ namespace TO_1
                 foreach (Point item in points)
                 {
                     var tmp = points.Except<Point>(new List<Point>() { item }).ToList();
-                    var tmpResult = FindBestAllocation(paths, tmp, target, item, pathNr, posNr);
+
+                    IList<Path> innerTarget = new List<Path>();;
+                    foreach (var path in target)
+                    {
+                        innerTarget.Add(new Path(path));
+                    }
+
+                    var tmpResult = FindBestAllocation(paths, tmp, innerTarget, item, pathNr, posNr);
                     if (ComparePaths(paths, tmpResult))
                         paths = tmpResult;
                 }
             else
             {
-                //foreach (var item in target.First().points)
+                //foreach (var item in target.Last().points)
                 //{
                 //    Debug.Write(item.id + " -> ");
                 //}
@@ -633,7 +643,7 @@ namespace TO_1
             return pointsDict.Values.SelectMany(item => item).ToList();
         }
 
-        private IDictionary<byte, IList<Point>> CreateRandomGroups()
+        private IDictionary<byte, IList<Point>> CreateRandomGroups(IList<Point> allPoints)
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             pointsDict[0] = new List<Point>();
@@ -670,7 +680,7 @@ namespace TO_1
             return pointsDict;
         }
 
-        private IDictionary<byte, IList<Point>> CreateGroups()
+        private IDictionary<byte, IList<Point>> CreateGroups( IList<Point> allPoints)
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();
