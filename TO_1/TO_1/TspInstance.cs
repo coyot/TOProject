@@ -94,41 +94,67 @@ namespace TO_1
             presol.Close();
         }
 
-        public void CalculateHeuristicEvolutionaryAlgorithm()
+        public IDictionary<byte, IList<Point>> CalculateHeuristicEvolutionaryAlgorithm()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            
             // we need to add starting results!! 
             IList<IDictionary<byte, IList<Point>>> results = null;
-            IList<Point> left;
 
-            // consider using some sort of timer here as well!! mayme by making it a thread?
-            for (var i = 0; i < TspInstanceConstants.NUMBER_OF_HEA_RUNS; i++)
+            while (stopwatch.ElapsedMilliseconds < TspInstanceConstants.Hea100RunTime)
             {
-                // recombinate two chosen results!;->
-                var commonPaths = Recombination(results[0], results[1], out left);
-                var preMutated = new List<IDictionary<byte, IList<Point>>>();
-
-
-                // Prepare start resolution...
-                for (var j = 0; j < TspInstanceConstants.NUMBER_OF_PRE_MUTATIONS; j++)
-                {
-                    preMutated.Add(PrepareForMutationByChance(commonPaths));
-                }
-
                 var mutated = new List<IDictionary<byte, IList<Point>>>();
 
-                // now we mutate!!
-                foreach (var mutation in mutated)
+                for (var k = 0; k < TspInstanceConstants.HeaNumberOfRecombinations; k++)
                 {
-                    for (var j = 0; j < TspInstanceConstants.NUMBER_OF_MUTATIONS; j++)
+                    // recombinate two chosen results!;->
+                    var firstIndex = 0;
+                    var secondIndex = 0;
+
+                    // draw two results to be recombinated
+                    while (firstIndex == secondIndex)
                     {
-                        mutated.Add(Mutate(mutation, left.Select(p => p).ToList()));
+                        var random = new Random();
+                        firstIndex = random.Next(TspInstanceConstants.HeaPopulationSize);
+                        secondIndex = random.Next(TspInstanceConstants.HeaPopulationSize);
+                    }
+
+                    IList<Point> left;
+                    var commonPaths = Recombination(results[firstIndex], results[secondIndex], out left);
+                    var preMutated = new List<IDictionary<byte, IList<Point>>>();
+
+                    // Prepare start resolution...
+                    for (var j = 0; j < TspInstanceConstants.HeaNumberOfPreMutations; j++)
+                    {
+                        preMutated.Add(PrepareForMutationByChance(commonPaths));
+                    }
+
+                    // now we mutate!!
+                    foreach (var preMutation in preMutated)
+                    {
+                        for (var j = 0; j < TspInstanceConstants.HeaNumberOfMutations; j++)
+                        {
+                            mutated.Add(Mutate(preMutation, left.Select(p => p).ToList()));
+                        }
                     }
                 }
 
-                results = mutated.OrderBy(r => r.Distance(NumberOfPoints)).Take(2).ToList();
+                foreach (var mutation in mutated)
+                {
+                    // find the local optimum for each of evolved restult
+                    // CalculateLocalSearch(mutation);
+                }
 
                 // here we should run the LS on each of the results!
+                results = results.Concat(mutated)
+                                 .OrderBy(r => r.Distance(NumberOfPoints))
+                                 .Take(TspInstanceConstants.HeaPopulationSize)
+                                 .ToList();
             }
+            stopwatch.Stop();
+
+            return results.OrderBy(r => r.Distance(NumberOfPoints)).First();
         }
 
         /// <summary>
@@ -205,6 +231,11 @@ namespace TO_1
             return result;
         }
 
+        /// <summary>
+        /// To be used in the HEA algorithm - to build initial resolution based on intersected paths
+        /// </summary>
+        /// <param name="intersectedPaths">Result from the Recombination proces</param>
+        /// <returns>Initial result consisting only of intersected paths - so it means not all points are in the result, yet</returns>
         private static IDictionary<byte, IList<Point>> PrepareForMutationByChance(IList<IList<Point>> intersectedPaths)
         {
             var random = new Random();
@@ -244,6 +275,13 @@ namespace TO_1
             return result;
         }
 
+        /// <summary>
+        /// Mutation proces - build the result from the initial result based on intersected paths
+        /// and left points. This is done by the nondeterministic matter.
+        /// </summary>
+        /// <param name="result">Initial result from the PrepareForMutationByChance</param>
+        /// <param name="leftPoints">Points which were not in the intersected paths</param>
+        /// <returns>Result of the mutation proces</returns>
         private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
         {
             while (leftPoints.Count > 0)
