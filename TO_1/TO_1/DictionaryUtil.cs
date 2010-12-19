@@ -25,5 +25,33 @@ namespace TO_1
 
             return distance.Sum(p => p);
         }
+
+        public static IDictionary<byte, IList<Point>> Clone(this IDictionary<byte, IList<Point>> source)
+        {
+            var copy = new Dictionary<byte, IList<Point>>();
+
+            for (byte i = 0; i < TspInstanceConstants.NUMBER_OF_GROUPS; i++)
+            {
+                var list = source[i];
+
+                var newList = new List<Point>();
+
+                foreach (var t in list)
+                {
+                    if (t != null)
+                    {
+                        newList.Add(t.Clone());
+                    }
+                    else
+                    {
+                        newList.Add(null);
+                    }
+                }
+
+                copy.Add(i, newList);
+            }
+
+            return copy;
+        }
     }
 }

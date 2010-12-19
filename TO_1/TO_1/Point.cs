@@ -19,6 +19,19 @@ namespace TO_1
             id = int.Parse(input[0]);
         }
 
+        public Point(int _id, int _x, int _y, byte _groupId)
+        {
+            this.id = _id;
+            this.x = _x;
+            this.y = _y;
+            this.groupId = _groupId;
+        }
+
+        public Point Clone()
+        {
+            return new Point(this.id, this.x, this.y, this.groupId);
+        }
+
         public int Distance(Point other)
         {
             if (other == null)

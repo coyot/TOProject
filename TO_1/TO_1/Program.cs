@@ -31,7 +31,8 @@ namespace TO_1
                 Console.WriteLine("The end of the stream has been reached.");
             }
             // START LOCAL SEARCH ALGORITHM
-            instance.Calculate();
+            //instance.Calculate();
+            instance.CalculateHea();
 
             // START RANDOM LOCAL SEARCH ALGORITHM
             //instance2.CalculateRandom();
