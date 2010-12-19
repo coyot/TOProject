@@ -7,8 +7,8 @@ namespace TO_1
 {
     public static class TspInstanceConstants
     {
-        public const int LS_REPEAT_VALUE = 130;
-        public const int K_VALUE = 5;
+        public const int LS_REPEAT_VALUE = 30;
+        public const int K_VALUE = 4;
         public const bool WRITE_PRE_SOLUTION = true;
         public const byte NUMBER_OF_GROUPS = 4;
         public const int NUMBER_OF_POINTS_PER_GROUP = 25;

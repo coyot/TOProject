@@ -11,7 +11,7 @@ namespace TO_1
     public class TspInstance
     {
         CenterOfMass centerOfMass;
-        IList<Point> allPoints;
+        IList<Point> allPointsForInstance;
         private IList<Point> _allPointConst;
         public int NumberOfPoints;
         //public IDictionary<byte, IList<Point>> pointsDict;
@@ -23,7 +23,7 @@ namespace TO_1
 
         public TspInstance()
         {
-            allPoints = new List<Point>();
+            allPointsForInstance = new List<Point>();
             _allPointConst = new List<Point>();
             NumberOfPoints = 0;            
         }
@@ -31,7 +31,7 @@ namespace TO_1
         public void AddPoint(string[] input)
         {
             var point = new Point(input);
-            allPoints.Add(point);
+            allPointsForInstance.Add(point);
             _allPointConst.Add(point);
             NumberOfPoints++;
             centerOfMass = new CenterOfMass();
@@ -48,7 +48,7 @@ namespace TO_1
             IDictionary<byte, IList<Point>> pointsDict;
             using (new Timer("LocalSearch - with RANDOM groups"))
             {
-                pointsDict = CreateRandomGroups();
+                pointsDict = CreateRandomGroups(new List<Point>(allPointsForInstance));
 
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
@@ -74,7 +74,7 @@ namespace TO_1
             IDictionary<byte, IList<Point>> pointsDict;
             using (new Timer("LocalSearch - with groups production"))
             {
-                pointsDict = CreateGroups();
+                pointsDict = CreateGroups(new List<Point>(allPointsForInstance));
                 CalculateGroups(pointsDict);
 
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
@@ -550,7 +550,7 @@ namespace TO_1
             return pointsDict.Values.SelectMany(item => item).ToList();
         }
 
-        private IDictionary<byte, IList<Point>> CreateRandomGroups()
+        private IDictionary<byte, IList<Point>> CreateRandomGroups(IList<Point> allPoints)
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             pointsDict[0] = new List<Point>();
@@ -587,7 +587,7 @@ namespace TO_1
             return pointsDict;
         }
 
-        private IDictionary<byte, IList<Point>> CreateGroups()
+        private IDictionary<byte, IList<Point>> CreateGroups( IList<Point> allPoints)
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();
