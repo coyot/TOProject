@@ -102,7 +102,7 @@ namespace TO_1
             // we need to add starting results!! 
             IList<IDictionary<byte, IList<Point>>> results = null;
 
-            while (stopwatch.ElapsedMilliseconds < TspInstanceConstants.Hea100RunTime)
+            while (stopwatch.ElapsedMilliseconds < TspInstanceConstants.HeaRunTime)
             {
                 var mutated = new List<IDictionary<byte, IList<Point>>>();
 
