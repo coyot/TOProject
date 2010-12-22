@@ -245,7 +245,8 @@ namespace TO_1
                         // Remove that point from ALL POINTS LIST - we have used this point, so it is not "free"
                         leftPoints.Remove(outerResult[outerGroupIndex][outerPointIndex]);
 
-                        while (outerResult[outerGroupIndex][outerNextPointIndex] == innerResult[innerGroupIndex][innerNextPointIndex])
+                        while (outerResult[outerGroupIndex][outerNextPointIndex] == innerResult[innerGroupIndex][innerNextPointIndex]
+                            && tmp.Count < 25)
                         {
                             tmp.Add(outerResult[outerGroupIndex][outerNextPointIndex].Clone());
 
