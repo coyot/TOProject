@@ -25,7 +25,7 @@ namespace WpfApplication1
         {
             InitializeComponent();
             draw(@"D:\sol.txt",1.0);
-            draw(@"D:\presol.txt",0.75);
+            //draw(@"D:\presol.txt",0.75);
 
         }
 
@@ -33,7 +33,7 @@ namespace WpfApplication1
         {
             
             var instance = new List<Point>();
-            string fileName = @"D:\kroB100.txt";
+            string fileName = @"D:\kroA100.txt";
             if (!File.Exists(fileName))
             {
                 Console.WriteLine("{0} does not exist.", fileName);
