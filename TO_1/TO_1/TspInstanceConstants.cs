@@ -17,10 +17,10 @@ namespace TO_1
         public const int NUMBER_OF_PRE_MUTATIONS = 10;
         public const int NUMBER_OF_HEA_RUNS = 100;
 
-        public const int HeaRunTime = 900000;
-        public const int HeaPopulationSize = 500;
-        public const int HeaNumberOfMutations = 5;
-        public const int HeaNumberOfPreMutations = 5;
-        public const int HeaNumberOfRecombinations = 5;
+        public const int HeaRunTime = 9000000;
+        public const int HeaPopulationSize = 1000;
+        public const int HeaNumberOfMutations = 10;
+        public const int HeaNumberOfPreMutations = 10;
+        public const int HeaNumberOfRecombinations = 10;
     }
 }
