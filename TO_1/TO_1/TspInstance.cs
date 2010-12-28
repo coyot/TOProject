@@ -17,7 +17,7 @@ namespace TO_1
         //public IDictionary<byte, IList<Point>> pointsDict;
         //public IDictionary<Point, byte> newPointDict;
         //int[] distance = new int[4];
-        //int firstToBeMoved = 0;
+        int firstToBeMoved = 0;
 
 
         public Group[] groups = new Group[4];
@@ -43,6 +43,7 @@ namespace TO_1
         /// </summary>
         public void CalculateRandom()
         {
+            var preres = new StreamWriter("preres_rand.txt", true);
             var res = new StreamWriter("res_rand.txt", true);
             var sol = new StreamWriter(@"D:\sol_rand.txt");
             var presol = new StreamWriter(@"D:\presol_rand.txt");
@@ -54,7 +55,7 @@ namespace TO_1
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
                     WriteSolution(pointsDict, presol);
-                    res.WriteLine(pointsDict.Distance(NumberOfPoints));
+                    preres.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
                 CalculateLocalSearch(pointsDict);
@@ -64,6 +65,7 @@ namespace TO_1
 
             sol.Close();
             res.Close();
+            preres.Close();
             presol.Close();
         }
 
@@ -93,6 +95,7 @@ namespace TO_1
 
             sol.Close();
             res.Close();
+            preres.Close();
             presol.Close();
         }
 
@@ -479,12 +482,22 @@ namespace TO_1
             int id = r.Next(NumberOfPoints);
             //id = (firstToBeMoved++)%100;
             pointsToBeMoved = new List<Point>();
+            Group toBeMoved = new Group(5);
             var allPoints = CreateAllPoints(pointsDict);
 
             //pointsDict.ke
             Point firstToMove = allPoints[id];
             pointsToBeMoved.Add(firstToMove);
-            pointsToBeMoved.AddRange(allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(firstToMove)).Take(k - 1));
+            toBeMoved.AddPoint(firstToMove);
+
+            //pointsToBeMoved.AddRange(allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(firstToMove)).Take(k - 1));
+            Point tmp;
+            for (int i = 0; i < k-1; i++)
+            {
+                tmp = allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(toBeMoved.centerOfMass)).First();
+                toBeMoved.AddPoint(tmp);
+                pointsToBeMoved.Add(tmp);
+            }
 
             paths = new List<Path>();
             target = new List<Path>();
@@ -703,11 +716,12 @@ namespace TO_1
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();
             int pos = rand.Next(NumberOfPoints);
-            //int pos = 43;
+            //int pos = 91;
             groups[0] = new Group(0);
             pointsDict[0] = new List<Point>();
             pointsDict[0].Add(allPoints[pos]);
             allPoints[pos].groupId = 0;
+            groups[0].AddPoint(allPoints[pos]);
             centerOfMass.AddPoint(allPoints[pos]);
             allPoints.RemoveAt(pos);
             Point point;
