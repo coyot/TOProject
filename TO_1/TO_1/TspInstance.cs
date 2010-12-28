@@ -69,6 +69,7 @@ namespace TO_1
 
         public void Calculate()
         {
+            var preres = new StreamWriter("preres.txt", true);
             var res = new StreamWriter("res.txt", true);
             var sol = new StreamWriter(@"D:\sol.txt");
             var presol = new StreamWriter(@"D:\presol.txt");
@@ -81,7 +82,7 @@ namespace TO_1
                 if (TspInstanceConstants.WRITE_PRE_SOLUTION)
                 {
                     WriteSolution(pointsDict, presol);
-                    res.WriteLine(pointsDict.Distance(NumberOfPoints));
+                    preres.WriteLine(pointsDict.Distance(NumberOfPoints));
                 }
 
                 CalculateLocalSearch(pointsDict);
@@ -97,7 +98,7 @@ namespace TO_1
 
         public void CalculateHea()
         {
-            var res = new StreamWriter(@"D:\res_hea.txt", true);
+            var res = new StreamWriter("res_hea.txt", true);
             var sol = new StreamWriter(@"D:\sol_hea.txt");
             IDictionary<byte, IList<Point>> result;
 
@@ -335,7 +336,7 @@ namespace TO_1
 
             for (byte i = 0; i < TspInstanceConstants.NUMBER_OF_GROUPS; i++)
             {
-                var tmpList = new List<Point>(25);
+                var tmpList = new List<Point>(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
                 for (var j = 0; j < TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP; j++)
                 {
                     tmpList.Add(null);
@@ -390,7 +391,7 @@ namespace TO_1
                 var random = new Random();
                 var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 // Choose a group where we can add something!
-                while (result[groupIndex].Where(p => p != null).Count() >= 25)
+                while (result[groupIndex].Where(p => p != null).Count() >= TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP)
                 {
                     groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 }
@@ -412,7 +413,7 @@ namespace TO_1
                     }
 
                     // NEEEXT!
-                    i = (i + 1) % 25;
+                    i = (i + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
                 }
 
                 // which point?
@@ -458,7 +459,7 @@ namespace TO_1
                             for (int l = 1; l < path.points.Count - 1; l++)
                             {
                                 path.points.ElementAt(l).groupId = currentGroup;
-                                pointsDict[currentGroup][(l + pos) % 25] = path.points.ElementAt(l);
+                                pointsDict[currentGroup][(l + pos) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP] = path.points.ElementAt(l);
                             }
                         }
                     }
@@ -497,14 +498,14 @@ namespace TO_1
                     {
                         int pos = pointsDict[item.groupId].IndexOf(item);
                         if (pos == 0)
-                            pos = 25;
+                            pos = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
                         path.points.AddFirst(pointsDict[item.groupId][pos - 1]);
                         added = true;
                     }
                     else if (path.points.Last().id == item.id)
                     {
                         int pos = pointsDict[item.groupId].IndexOf(item);
-                        if (pos == 24)
+                        if (pos == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1)
                             pos = -1;
                         path.points.AddLast(pointsDict[item.groupId][pos + 1]);
                         added = true;
@@ -521,12 +522,12 @@ namespace TO_1
                     int prev = pointsDict[item.groupId].IndexOf(item);
                     int next = prev;
                     if (prev == 0)
-                        prev = 25;
+                        prev = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
 
                     newPath.points.AddFirst(pointsDict[item.groupId][prev - 1]);
                     newPath.points.AddLast(item);
 
-                    if (next == 24)
+                    if (next == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1)
                         next = -1;
                     newPath.points.AddLast(pointsDict[item.groupId][next + 1]);
                     paths.Add(newPath);
@@ -681,8 +682,8 @@ namespace TO_1
             {
                 var g1 = (byte)rand.Next(4);
                 var g2 = (byte)rand.Next(4);
-                var e1 = rand.Next(25);
-                var e2 = rand.Next(25);
+                var e1 = rand.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
+                var e2 = rand.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
 
                 var tmp = pointsDict[g1][e1];
                 tmp.groupId = g2;

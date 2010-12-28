@@ -73,7 +73,7 @@ min C = \sum \limits_{i<n}^{i=1} |w_i,w_{i+1}| + |w_n,w_1| + \sum \limits_{i<n}^
 gdzie $|\mathcal{V}| = 4n$.
 
 \section{Generowanie rozwiązania początkowego (\emph{RP})}
-\subsection{Opis metody}
+\subsection{Opis metody} \label{sec:rp_section}
 Analizowana metoda generowania rozwiązania początkowego to \emph{grupowanie} i następnie \emph{poszukiwanie najbliższego sąsiada}.
 
 \subsubsection{Słowny} \label{sec:slownyrp}
@@ -143,11 +143,11 @@ W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opraco
   \begin{tabular}{| c | c | m{3cm} | c | c | c | }
     \hline
 	instancja & \centering metoda & śr. wart. roz. z 10 pomiarów & mediana & odch. std. & najlepsza wartość \\ \hline
-    kroA100.txt & NS G & \centering 36305,1 & 35181 & 5171,589 & 30000\\
-      & LRP & \centering 172098,93 & 173449 & 9454,07 & 149737\\
+    kroA100.txt & NS G & \centering 33 721 & 33 174 & 3 551 & 26 742\\
+      & LRP & \centering 171 479 & 170 055 & 9 635 & 153 474\\
     \hline
-    kroB100.txt & NS G & \centering 36434,7 & 37189 & 3499,752 & 30973\\
-      & LRP & \centering 167659,3 & 168948 & 8808,89 & 145770\\
+    kroB100.txt & NS G & \centering 35 210 & 25 979 & 3 393 & 30 173\\
+      & LRP & \centering 166 257 & 166 053 & 6 220 & 153 757\\
     \hline
   \end{tabular}
 \end{center}
@@ -215,7 +215,8 @@ Algorytm generowania rozwiązania można zapisać przy pomocy poniższego pseudo
 W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
 \begin{itemize}
 	\item \emph{RP} - metoda z pierwszego ćwiczenia - generowanie rozwiązania początkowego,
-	\item \emph{RP + LS} - metoda lokalnego przeszukiwania rozpoczynająca się od wygenerowania rozwiązania początkowego zgodnie z zasadami z ćwiczenia numer 1. 
+	\item \emph{RP + LS} - metoda lokalnego przeszukiwania rozpoczynająca się od wygenerowania rozwiązania początkowego zgodnie z zasadami z ćwiczenia numer 1,
+	\item \emph{LRP + LS} - metoda lokalnego przeszukiwania rozpoczynająca się od wygenerowania losowego rozwiązania początkowego zgodnie z zasadami z ćwiczenia numer 2.
 \end{itemize}
 	
 \newcolumntype{S}{>{\centering\arraybackslash} m{3cm} }
@@ -227,16 +228,36 @@ W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
   \begin{tabular}{| c | D | S | c | S | }
 \hline
 	instancja & metoda & śr. jakość (odch. standardowe) & śr. czas [ms] & jakość najlepszego przeszukiwania \\ \hline
-    kroA100.txt & \emph{RP} & 36305 (4995) & 0 & 25893 \\
-    kroA100.txt & \emph{RP + LS} & 23096 (1121) & 123 & 21359 \\
+    kroA100.txt & \emph{RP} & 33 721 (3 551) & 0 & 26 742 \\
+     & \emph{RP + LS} & 32 417 (3 508) & 423 & 25 604 \\
+     & \emph{LRP} & 171 479 (9 635) & 0 & 153 474 \\
+     & \emph{LRP + LS} & 152 039 (9 376) & 620 & 127 767 \\
 \hline
-    kroB100.txt & \emph{RP} & 36434 (3452) & 0 & 25421 \\
-    kroB100.txt & \emph{RP + LS} & 24604 (665) & 125 & 22869 \\
+    kroB100.txt & \emph{RP} & 35 210 (3 393) & 0 & 35 979 \\
+     & \emph{RP + LS} & 34 305 (3180) & 363 & 29 428 \\
+     & \emph{LRP} & 166 257 (6 220) & 0 & 153 757 \\
+     & \emph{LRP + LS} & 145 413 (8 695) & 733 & 148 168 \\
 \hline
   \end{tabular}
 \end{center}
 \caption{Uśrednione wyniki pomiarów.} \label{tab:wynikils}
 \end{table}
+
+\begin{figure}[h!]
+\centering\includegraphics[width=13cm]{img/wyk2.png}
+\caption{Wyniki eksperymentów - zastosowanie LocalSearch do poprawy jakości rozwiązania generowanego przez RP}
+\label{wyk:wyniki_ls_rp}
+\end{figure}
+
+\begin{figure}[h!]
+\centering\includegraphics[width=13cm]{img/wyk3.png}
+\caption{Wyniki eksperymentów - zastosowanie LocalSearch do poprawy jakości rozwiązania generowanego przez LRP}
+\label{wyk:wyniki_ls_lrp}
+\end{figure}
+
+Rysunki \ref{wyk:wyniki_ls_rp} oraz \ref{wyk:wyniki_ls_lrp} prezentują kolejno wyniki zastosowania LocalSearch do optymalizacji rozwiązania generowanego przez RP (rys.\ref{wyk:wyniki_ls_rp}, a także LRP (rys.\ref{wyk:wyniki_ls_lrp}). Analizując dane łatwo zauważyć, że przy generowaniu rozwiązania metodą RP zastosowanie LS przynosi jedynie niewielką poprawę rozwiązania - na poziomie $4-5\%$. Wynika z tego, że przyjęty sposób generowania rozwiązania początkowego (zobacz rozdział \ref{sec:rp_section}) generuje bardzo dobre rozwiązanie początkowe - w sensie lokalnej jego optymalizacji.
+
+Lepszą poprawe zaobserwować można na wykresie \ref{wyk:wyniki_ls_lrp}, gdzie zastosowanie LS poprawiało wynik generowany przy pomocy LRP o około $13\%$.
 
 \subsection{Rysunki najlepszych rozwiązań}
 Na poniższych rysunkach przedstawione zostały rozwiązania wygenerowane przy pomocy metody \emph{RP + LS}.
@@ -308,5 +329,43 @@ Ogólna idea heurystycznego algorytmu ewolucyjnego zaimplementowanego w ramach w
 \end{codebox}
 
 \subsection{Eksperymenty i wyniki}
+W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
+\begin{itemize}
+	\item \emph{RP + LS} - metoda lokalnego przeszukiwania rozpoczynająca się od wygenerowania rozwiązania początkowego zgodnie z zasadami z ćwiczenia numer 1,
+	\item \emph{RP + HEA} - metoda heurystycznego algorytmu ewolucyjnego z wykorzystaniem algorytmu lokalnego przeszukiwania. 
+\end{itemize}
+	
+\newcolumntype{S}{>{\centering\arraybackslash} m{3cm} }
+\newcolumntype{D}{>{\centering\arraybackslash} m{5cm} }
+
+\begin{table}[h!]
+\begin{center}
+\centering
+  \begin{tabular}{| c | D | S | c | S | }
+\hline
+	instancja & metoda & śr. jakość (odch. standardowe) & śr. czas [ms] & jakość najlepszego przeszukiwania \\ \hline
+    kroA100.txt & \emph{RP + LS} & 32 417 (3 508) & 423 & 25 604 \\
+     & \emph{RP + HEA} & 25 181 (95) & 30 000 & 25 061 \\
+\hline
+    kroB100.txt & \emph{RP + LS} & 34 305 (3180) & 363 & 29 428 \\
+     & \emph{RP + HEA} & 27 649 (530) & 30 000 & 26 446 \\
+\hline
+    kroA150.txt & \emph{RP + LS} & 44 193 (3 765) & 503 & 36 629 \\
+     & \emph{RP + HEA} & 34 898 (266) & 60 000 & 34 420 \\
+\hline
+  \end{tabular}
+\end{center}
+\caption{Uśrednione wyniki pomiarów - porównanie efektywności algorytmu heurystycznego w stosunku do zastosowania lokalnego przeszukiwania.} \label{tab:wynikils}
+\end{table}
+
+\begin{figure}[h!]
+\centering\includegraphics[width=17cm]{img/wyk1.png}
+\caption{Wyniki eksperymentów}
+\label{wyk:wyniki}
+\end{figure}
+
+Należy zauważyć, że zbiór \emph{kroA150.txt} zawierał 150 punktów - ponieważ w założeniach do zadania przyjęto, że zbiór powinien móc podzielić się na 4 równe podzbiory (podgrupy) - przyjęto, że do zadania skierowane zostanie pierwsze 148 punktów ze zbioru.
+
+Na rysunku \ref{wyk:wyniki} przedstawiony został wykres z pomiarów. Łatwo zauważyć, że algorytm HEA wykazuje około $20\%$ "zysk" w stosunku do zastosowania jedynie algorytmu lokalnego przeszukiwania - dla każdego z zestawów są to wartości bliskie takiemu współczynnikowi.
 
 \end{document}

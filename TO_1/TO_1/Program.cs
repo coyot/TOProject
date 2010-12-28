@@ -14,6 +14,7 @@ namespace TO_1
         {
             var instance = new TspInstance();
             var instance2 = new TspInstance();
+            var instance3 = new TspInstance();
             string fileName = args[0];
             if (!File.Exists(fileName))
             {
@@ -27,15 +28,18 @@ namespace TO_1
                 {
                     instance.AddPoint(input.Split(';'));
                     instance2.AddPoint(input.Split(';'));
+                    instance3.AddPoint(input.Split(';'));
                 }
                 Console.WriteLine("The end of the stream has been reached.");
             }
             // START LOCAL SEARCH ALGORITHM
-            //instance.Calculate();
-            instance.CalculateHea();
+            instance.Calculate();
+            //instance2.CalculateHea();
 
             // START RANDOM LOCAL SEARCH ALGORITHM
-            instance2.CalculateRandom();
+            //instance2.CalculateRandom();
+
+            instance3.CalculateHea();
 
             Console.ReadLine();
 
