@@ -163,7 +163,7 @@ W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opraco
 \subsection{Opis metody}
 Analizowana metoda generowania rozwiązania to \emph{rozrywanie (1 ruch) w wersji stromej}.
 
-\subsection{Opis słowny metody}
+\subsubsection{Opis słowny metody}
 Proces poszukiwania lokalnego optimum rozpoczyna się od wykonania kroków z opisanego w rozdziale \emph{Generowanie rozwiązania początkowego}. Następnie na takim rozwiązaniu dokonywane jest lokalne przeszukiwanie.
 
 Kroki metody:
@@ -176,7 +176,7 @@ Kroki metody:
 
 Parametr $k \in {2,3,4}$ jest definiowany na wejściu programu.
 
-\subsection{Pseudokod}
+\subsubsection{Pseudokod}
 Algorytm generowania rozwiązania można zapisać przy pomocy poniższego pseudokodu.
 \begin{codebox}
 	\Procname{$\proc{Lokalne przeszukiwanie}(\mathcal{V}, \id{k})$}
@@ -272,12 +272,12 @@ Na poniższych rysunkach przedstawione zostały rozwiązania wygenerowane przy p
 
 
 \section{Heurystyczny Algorytm Ewolucyjny (HEA)}
-\subsection{Wstęp}
+\subsection{Opis metody}
 W ramach wykonania zadania przygotowano implementację Heurystycznego Algorytmu Ewolucyjnego dla problemu komiwojażera.
 
 W kolejnych podrozdziałach przygotowano opis słowny, a także pseudokod rozwiązania w ramach opracowywanego zadania. 
 
-\subsection{Opis słowny metody}
+\subsubsection{Opis słowny metody}
 Algorytm rozpoczyna się od wygenerowania pewnej populacji początkowej - przeprowadzane są kroki opisane we wcześniejszych roździałach. Oprócz wykorzystania LS przy budowie wstępnej populacji, wykorzystuje się go również do optymalizacji rozwiązań otrzymywanych w populacji rozwiązań po przeprowadzaniu mutacji.
 
 Kroki algorytmu powtarzane są do momentu, w którym przekroczony zostanie dostępny na obliczenia czas - który to jest parametrem wejściowym do algorytmu. W testach (zgodnie z poleceniem prowadzącego) przyjęto wartość 30 sekund (bądź 60, dla bardziej rozbudowanego zestawu danych testowych). 
@@ -296,7 +296,7 @@ Każdy z tych etapów może być konfigurowalny parametrami, które definiują l
 
 Ostatni etap, to ograniczenie przestrzeni rozwiązań, tak by nie rozrastała się ona w zbyt intensywnym tempie - chodzi o ograniczenia pamięciowe poszczególnych maszyn testowych. Także i w tym wypadku definiuje się parametr wejściowy, który określa maksymalny rozmiar populacji rozwiązań algorytmu ewolucyjnego.
 
-\subsection{Pseudokod}
+\subsubsection{Pseudokod}
 Wcześniej zdefiniowane wartości:
 	
 \begin{codebox}
