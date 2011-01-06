@@ -17,7 +17,7 @@ namespace TO_1
         public const int NUMBER_OF_PRE_MUTATIONS = 10;
         public const int NUMBER_OF_HEA_RUNS = 100;
 
-        public const int HeaRunTime = 60000;
+        public const int HeaRunTime = 30000;
         public const int HeaPopulationSize = 200;
         public const int HeaNumberOfMutations = 5;
         public const int HeaNumberOfPreMutations = 5;

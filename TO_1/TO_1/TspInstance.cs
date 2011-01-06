@@ -101,7 +101,7 @@ namespace TO_1
 
         public void CalculateHea()
         {
-            var res = new StreamWriter("res_hea.txt", true);
+            var res = new StreamWriter(@"D:\res_hea.txt", true);
             var sol = new StreamWriter(@"D:\sol_hea.txt");
             IDictionary<byte, IList<Point>> result;
 
