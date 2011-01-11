@@ -159,7 +159,7 @@ W tabeli \ref{tab:wynikirp} zostały przedstawione uśrednione wyniki dla opraco
 \caption{Rozwiązanie początkowe dla \emph{kroA100.txt}}
 \end{figure}
 
-\section{Local search (LS)}
+\section{Local search (LS)} \label{sec:ls}
 \subsection{Opis metody}
 Analizowana metoda generowania rozwiązania to \emph{rozrywanie (1 ruch) w wersji stromej}.
 
@@ -280,19 +280,21 @@ W kolejnych podrozdziałach przygotowano opis słowny, a także pseudokod rozwi�
 \subsubsection{Opis słowny metody}
 Algorytm rozpoczyna się od wygenerowania pewnej populacji początkowej - przeprowadzane są kroki opisane we wcześniejszych roździałach. Oprócz wykorzystania LS przy budowie wstępnej populacji, wykorzystuje się go również do optymalizacji rozwiązań otrzymywanych w populacji rozwiązań po przeprowadzaniu mutacji.
 
-Kroki algorytmu powtarzane są do momentu, w którym przekroczony zostanie dostępny na obliczenia czas - który to jest parametrem wejściowym do algorytmu. W testach (zgodnie z poleceniem prowadzącego) przyjęto wartość 30 sekund (bądź 60, dla bardziej rozbudowanego zestawu danych testowych). 
+Kroki algorytmu powtarzane są do momentu, w którym przekroczony zostanie dostępny na obliczenia czas - który to jest parametrem wejściowym do algorytmu. W testach (zgodnie z poleceniem prowadzącego) przyjęto wartość 30 sekund (bądź 60, dla bardziej rozbudowanego zestawu danych testowych - \emph{kroA150}). 
 
-Pierwszy krok, to wybór rozwiązań z populacji rozwiązań, które poddawane będą ewolucji. Dokonuje się to przy pomocy losowego wyborów elementów dostępnych w populacji. Należy podkreślić, że liczba wybranych rozwiązań jest parametrem definiowalnym dla algorytmu.
+Pierwszy krok, to wybór rozwiązań z populacji rozwiązań, które poddawane będą ewolucji. Dokonuje się to przy pomocy losowego wyborów rozwiązań dostępnych w populacji. Należy podkreślić, że liczba wybranych rozwiązań jest parametrem definiowalnym dla algorytmu. Następnie odbywa się drugi krok algorytmu - właściwy dla heurystycznego algorytmu ewolucyjnego.
 
-Drugi krok to dokonanie rekombinacji na parach (losowo dobieranych) z rozwiązań wybranych w kroku poprzednim.
+Drugi krok to dokonanie rekombinacji na parach (losowo dobieranych) z rozwiązań wybranych w kroku poprzednim. Analizując parę rozwiązań wybierane są wszystkie ścieżki wspólne w dwóch rozwiązaniach oraz punkty, które nie leżą na żadnej wspólnej ścieżce. 
 
 Następny krok to mutacja, którą logicznie można podzielić na dwa etapy:
 	\begin{itemize}
-		\item \emph{premutacja} - czyli opracowanie wstępnych rozwiązań na podstawie dostarczonych list wspólnych ścieżek dla par rozwiązań,
+		\item \emph{premutacja} - czyli opracowanie wstępnych rozwiązań na podstawie dostarczonych list wspólnych ścieżek (znalezionych w poprzednim punkcie - przez porównanie pary losowych rozwiązań) dla par rozwiązań,
 		\item \emph{właściwa mutacja} - czyli losowe wypełnienie brakujących połączeń punktami, które nie znajdują się na żadnej ze wspólnych scieżek.
 	\end{itemize}
 	
 Każdy z tych etapów może być konfigurowalny parametrami, które definiują liczbę generowanych rozwiązań na poszczególnych etapach. Pozwala to w elastyczny sposób zarządzać przestrzenią rozwiązań, tak by nie rozrastała się ona w zbyt szybkim tempie.
+
+Następnie każde takie rozwiązanie jest poddawane lokalnej optymalizacji przy pomocy \emph{Local Search}, które przedstawione zostało w rozdziale \ref{sec:ls}.
 
 Ostatni etap, to ograniczenie przestrzeni rozwiązań, tak by nie rozrastała się ona w zbyt intensywnym tempie - chodzi o ograniczenia pamięciowe poszczególnych maszyn testowych. Także i w tym wypadku definiuje się parametr wejściowy, który określa maksymalny rozmiar populacji rozwiązań algorytmu ewolucyjnego.
 
@@ -327,6 +329,21 @@ Ogólna idea heurystycznego algorytmu ewolucyjnego zaimplementowanego w ramach w
 	\li $\id{rezultat} \gets \proc{Wybór najlepszego rozwiązania} (\id{populacja\_rozwiązań})$	
 	
 \end{codebox}
+
+Funkcje użyte w pseudokodzie są na tyle intuicyjne, że ich opis ograniczony zostanie do akceptowalnego minimum.
+
+\paragraph{Wybór rozwiązań do ewolucji}
+Polega na wylosowaniu określonej parametrem liczby rozwiązań z globalnej populacji rozwiązań. Odbywa się to w sposób niedeterministyczny, wykorzystując losowe wybieranie pary rozwiązań (tak, by w parzenie nie znalazły się dwa takie same rozwiązania).
+
+\paragraph{Rekombinacja losowych par}
+Dla pary rozwiązań następuje analiza obydwu, by wydobyć wspólne ścieżki, na podstawie których budowane będzie nowe rozwiązanie. Analizowane są wszystkie punkty, w taki sposób by odnaleźć części wspólne.
+
+\paragraph{Mutacja}
+Metoda ta podzielona jest na dwa logiczne punkty:
+\begin{itemize}
+		\item \emph{premutacja} - na podstawie listy wspólnych ścieżek przygotowywane jest rozwiązanie wstępne - tzn. wspólne ścieżki przydzielane są w "puste miejsca" w rozwiązaniu docelowym,
+		\item \emph{właściwa mutacja} - następnie w puste miejsca przydzielane są punkty, które nie znalazły się na ścieżkach stanowiących części wspólne rozwiązań.
+\end{itemize}
 
 \subsection{Eksperymenty i wyniki}
 W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
@@ -367,5 +384,49 @@ W tabeli przedstawione zostały zbiorcze wyniki pomiarów:
 Należy zauważyć, że zbiór \emph{kroA150.txt} zawierał 150 punktów - ponieważ w założeniach do zadania przyjęto, że zbiór powinien móc podzielić się na 4 równe podzbiory (podgrupy) - przyjęto, że do zadania skierowane zostanie pierwsze 148 punktów ze zbioru.
 
 Na rysunku \ref{wyk:wyniki} przedstawiony został wykres z pomiarów. Łatwo zauważyć, że algorytm HEA wykazuje około $20\%$ "zysk" w stosunku do zastosowania jedynie algorytmu lokalnego przeszukiwania - dla każdego z zestawów są to wartości bliskie takiemu współczynnikowi.
+
+\section{Porównanie LS i HEA}
+Na polecenie Prowadzącego przygotowany został test porównania opracowanych algorytmów. Głównym założeniem działania eksperymentu było uruchomienie obu algorytmów dla tych samych warunków stopu - tj. ograniczyć czas działania algorytmów do 30 sekund.
+
+Opis oznaczeń:
+\begin{itemize}
+	\item \emph{RP + LS} - metoda lokalnego przeszukiwania rozpoczynająca się od wygenerowania rozwiązania początkowego zgodnie z zasadami z ćwiczenia numer 1,
+	\item \emph{RP + HEA} - metoda heurystycznego algorytmu ewolucyjnego z wykorzystaniem algorytmu lokalnego przeszukiwania. 
+\end{itemize}
+
+\newcolumntype{S}{>{\centering\arraybackslash} m{3cm} }
+\newcolumntype{D}{>{\centering\arraybackslash} m{5cm} }
+
+\begin{table}[h!]
+\begin{center}
+\centering
+  \begin{tabular}{| c | D | S | c | S | }
+\hline
+	instancja & metoda & śr. jakość (odch. standardowe) & śr. czas [ms] & jakość najlepszego przeszukiwania \\ \hline
+    kroA100.txt & \emph{RP + LS} & 31 522 (2 829) & 30 000 & 26 968 \\
+     & \emph{RP + HEA} & 25 527 (441) & 30 000 & 25 313 \\
+\hline
+    kroB100.txt & \emph{RP + LS} & 33 318 (2 945) & 30 000 & 27 228 \\
+     & \emph{RP + HEA} & 27 663 (433) & 30 000 & 27 645 \\
+\hline
+  \end{tabular}
+\end{center}
+\caption{Uśrednione wyniki pomiarów - porównanie efektywności algorytmu heurystycznego w stosunku do zastosowania lokalnego przeszukiwania.} \label{tab:wynikils}
+\end{table}
+\begin{figure}[h!]
+\centering\includegraphics[width=17cm]{img/wyk4.png}
+\caption{Wyniki eksperymentów porównujących HEA z LS}
+\label{wyk:wyniki_por}
+\end{figure}
+\begin{figure}[h!]
+\centering\includegraphics[width=17cm]{img/wyk5.png}
+\caption{Jakość HEA w stosunku do LS}
+\label{wyk:wyniki_por_2}
+\end{figure}
+
+Na rysunkach \ref{wyk:wyniki_por} oraz \ref{wyk:wyniki_por_2} przedstawione zostały wykresy wyników porównania algorytmów zaimplementowanych w ramach ćwiczenia. Jednoznacznie widać poprawę rozwiązania przy zastosowaniu heurystycznego algorytmu ewolucyjnego w stosunku do Local Search. Przy uruchomieniu obu algorytmów na taki sam okres czasu przewaga algorytmu HEA nad LS mieści się w przedziale od $10\%$ do $20\%$. 
+
+Przewiduje się, że możliwość poprawy jakości rozwiązania tworzonego przez HEA możnaby uzyskać stosując nieco bardziej wyrafinowany algorytm budowy rozwiązania wstępnego ze ścieżek wspólnych dla pary rozwiązań - np. poprzez wprowadzenie miary odległości - tak by przydział do grup następował w lokalnych obszarach, a nie dowolnych, jak to miało miejsce do tej pory.
+
 
 \end{document}
