@@ -15,12 +15,12 @@ namespace TO_1
             if (args.Count() != 3)
             {
                 Console.WriteLine("Wrong number of arguments!");
-                Console.WriteLine("Usage: prog.exe [input_file] [sol_path] [res_path]");
+                Console.WriteLine("Usage: prog.exe [input_file] [res_path] [sol_path]");
                 return;
             }
 
-            TspInstanceConstants.SOL_FILE_PATH = args[1];
-            TspInstanceConstants.RES_FILE_PATH = args[2];
+            TspInstanceConstants.RES_FILE_PATH = args[1];
+            TspInstanceConstants.SOL_FILE_PATH = args[2];
 
             for (var i = 0; i < 2; i++)
             {

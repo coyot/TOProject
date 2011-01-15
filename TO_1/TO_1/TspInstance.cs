@@ -125,12 +125,12 @@ namespace TO_1
             // we need to add starting results!! 
             IList<IDictionary<byte, IList<Point>>> results = new List<IDictionary<byte, IList<Point>>>();
 
-            for (var i = 0; i < TspInstanceConstants.HeaPopulationSize/2; i++)
+            for (var i = 0; i < TspInstanceConstants.HeaPopulationSize; i++)
             {
                 var pointsDict = CreateGroups(allPointsForInstance.ToList());
                 CalculateGroups(pointsDict);
 
-                CalculateLocalSearch(pointsDict);
+                CalculateLocalSearch(pointsDict, stopwatch);
                 results.Add(pointsDict);
                 allPointsForInstance = _allPointConst.ToList();
             }
@@ -138,7 +138,6 @@ namespace TO_1
             while (stopwatch.ElapsedMilliseconds < TspInstanceConstants.HeaRunTime)
             {
                 var mutated = new List<IDictionary<byte, IList<Point>>>();
-                Console.WriteLine("HEA step at: {0}", stopwatch.ElapsedMilliseconds);
                 for (var k = 0; k < TspInstanceConstants.HeaNumberOfRecombinations; k++)
                 {
                     // recombinate two chosen results!;->
@@ -154,10 +153,7 @@ namespace TO_1
                     }
 
                     IList<Point> left;
-                    Console.WriteLine("RECOMBINATION OF {0} AND {1}", firstIndex, secondIndex);
                     var commonPaths = Recombination(results[firstIndex], results[secondIndex], out left);
-                    Console.WriteLine(" --- DONE ---");
-                    Console.WriteLine("");
                     var preMutated = new List<IDictionary<byte, IList<Point>>>();
 
                     // Prepare start resolution...
@@ -166,11 +162,8 @@ namespace TO_1
                     {
                         preMutated.Add(PrepareForMutationByChance(commonPaths.OrderByDescending(t => t.Count).AsParallel().ToList()));
                     }
-                    Console.WriteLine(" --- DONE ---");
-                    Console.WriteLine("");
 
                     // now we mutate!!
-                    Console.WriteLine("MUTATION PROCESS !!!");
                     foreach (var preMutation in preMutated)
                     {
                         for (var j = 0; j < TspInstanceConstants.HeaNumberOfMutations; j++)
@@ -182,18 +175,16 @@ namespace TO_1
                     //Console.WriteLine("");
                 }
 
-                Console.WriteLine("   LS - optimization of mutated at {0}", stopwatch.ElapsedMilliseconds);
-                foreach (var mutation in mutated)
+                var rand = new Random();
+                for (var i = 0; i < TspInstanceConstants.HeaNumberOfLsOptimizations; i++)
                 {
-                    // find the local optimum for each of evolved restult
-                    CalculateLocalSearch(mutation);
                     if (stopwatch.ElapsedMilliseconds < TspInstanceConstants.HeaRunTime)
                         break;
+                    var forOptimization = mutated[rand.Next(TspInstanceConstants.HeaNumberOfLsOptimizations)];
+                    // find the local optimum for each of evolved restult
+                    CalculateLocalSearch(forOptimization, stopwatch);
                 }
-                Console.WriteLine("     --- DONE ---");
-                Console.WriteLine("");
-
-                // here we should run the LS on each of the results!
+                
                 results = results.Concat(mutated)
                                  .OrderBy(r => r.Distance(NumberOfPoints))
                                  .Take(TspInstanceConstants.HeaPopulationSize)
@@ -422,11 +413,12 @@ namespace TO_1
                 }
 
                 // which point?
-                var pointIndex = random.Next(leftPoints.Count);
+                var point = leftPoints.OrderBy(p => p.Distance(result[groupIndex])).AsParallel().First();
+                //var pointIndex = random.Next(leftPoints.Count);
 
-                result[groupIndex][putItHereIndex] = leftPoints[pointIndex].Clone();
+                result[groupIndex][putItHereIndex] = point.Clone();
                 result[groupIndex][putItHereIndex].groupId = groupIndex;
-                leftPoints.RemoveAt(pointIndex);
+                leftPoints.Remove(point);
             }
 
             return result;
@@ -473,7 +465,7 @@ namespace TO_1
 
         }
 
-        private void CalculateLocalSearch(IDictionary<byte, IList<Point>> pointsDict)
+        private void CalculateLocalSearch(IDictionary<byte, IList<Point>> pointsDict, Stopwatch stopper)
         {
             List<Point> pointsToBeMoved;
             IList<Path> paths;
@@ -508,6 +500,10 @@ namespace TO_1
                                 pointsDict[currentGroup][(l + pos) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP] = path.points.ElementAt(l);
                             }
                         }
+                    }
+                    if (stopper.ElapsedMilliseconds > TspInstanceConstants.HeaRunTime)
+                    {
+                        return;
                     }
                 }
                 if (!continueLS)

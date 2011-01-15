@@ -15,6 +15,11 @@ namespace TO_1
                 distance[i] = 0;
                 for (var k = 1; k < numberOfPoints / 4; k++)
                 {
+                    if (result[i][k-1] == null)
+                    {
+                        Console.WriteLine("g{0} p{1} ERROR!", i, k-1);
+                        return int.MaxValue;
+                    }
                     distance[i] += result[i][k - 1].Distance(result[i][k]);
                 }
             }
