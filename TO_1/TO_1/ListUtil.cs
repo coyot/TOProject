@@ -10,9 +10,16 @@ namespace TO_1
             return CalculateCenterOfMass(first).Distance(CalculateCenterOfMass(second));
         }
 
-        private static Point CalculateCenterOfMass(IList<Point> list)
+        private static Point CalculateCenterOfMass(IEnumerable<Point> list)
         {
-            return null;
+            var massCenter = new CenterOfMass();
+
+            foreach (var point in list.Where(point => point != null))
+            {
+                massCenter.AddPoint(point);
+            }
+
+            return massCenter;
         }
 
         public static IList<IList<Point>> Clone(this IList<IList<Point>> source)

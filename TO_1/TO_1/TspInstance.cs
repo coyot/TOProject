@@ -41,68 +41,68 @@ namespace TO_1
         /// <summary>
         /// Random calculation - for comparison purposes
         /// </summary>
-        public void CalculateRandom()
-        {
-            var preres = new StreamWriter("preres_rand.txt", true);
-            var res = new StreamWriter("res_rand.txt", true);
-            var sol = new StreamWriter(@"D:\sol_rand.txt");
-            var presol = new StreamWriter(@"D:\presol_rand.txt");
-            IDictionary<byte, IList<Point>> pointsDict;
-            using (new Timer("LocalSearch - with RANDOM groups"))
-            {
-                pointsDict = CreateRandomGroups(new List<Point>(allPointsForInstance));
+        //public void CalculateRandom()
+        //{
+        //    var preres = new StreamWriter("preres_rand.txt", true);
+        //    var res = new StreamWriter("res_rand.txt", true);
+        //    var sol = new StreamWriter(@"D:\sol_rand.txt");
+        //    var presol = new StreamWriter(@"D:\presol_rand.txt");
+        //    IDictionary<byte, IList<Point>> pointsDict;
+        //    using (new Timer("LocalSearch - with RANDOM groups"))
+        //    {
+        //        pointsDict = CreateRandomGroups(new List<Point>(allPointsForInstance));
 
-                if (TspInstanceConstants.WRITE_PRE_SOLUTION)
-                {
-                    WriteSolution(pointsDict, presol);
-                    preres.WriteLine(pointsDict.Distance(NumberOfPoints));
-                }
+        //        if (TspInstanceConstants.WRITE_PRE_SOLUTION)
+        //        {
+        //            WriteSolution(pointsDict, presol);
+        //            preres.WriteLine(pointsDict.Distance(NumberOfPoints));
+        //        }
 
-                CalculateLocalSearch(pointsDict);
-            }
-            WriteSolution(pointsDict, sol);
-            res.WriteLine(pointsDict.Distance(NumberOfPoints));
+        //        CalculateLocalSearch(pointsDict);
+        //    }
+        //    WriteSolution(pointsDict, sol);
+        //    res.WriteLine(pointsDict.Distance(NumberOfPoints));
 
-            sol.Close();
-            res.Close();
-            preres.Close();
-            presol.Close();
-        }
+        //    sol.Close();
+        //    res.Close();
+        //    preres.Close();
+        //    presol.Close();
+        //}
 
-        public void Calculate()
-        {
-            var preres = new StreamWriter("preres.txt", true);
-            var res = new StreamWriter("res.txt", true);
-            var sol = new StreamWriter(@"D:\sol.txt");
-            var presol = new StreamWriter(@"D:\presol.txt");
-            IDictionary<byte, IList<Point>> pointsDict;
-            using (new Timer("LocalSearch - with groups production"))
-            {
-                pointsDict = CreateGroups(new List<Point>(allPointsForInstance));
-                CalculateGroups(pointsDict);
+        //public void Calculate()
+        //{
+        //    var preres = new StreamWriter(@"D:\preres.txt", true);
+        //    var res = new StreamWriter(@"D:\res.txt", true);
+        //    var sol = new StreamWriter(@"D:\sol.txt");
+        //    var presol = new StreamWriter(@"D:\presol.txt");
+        //    IDictionary<byte, IList<Point>> pointsDict;
+        //    using (new Timer("LocalSearch - with groups production"))
+        //    {
+        //        pointsDict = CreateGroups(new List<Point>(allPointsForInstance));
+        //        CalculateGroups(pointsDict);
 
-                if (TspInstanceConstants.WRITE_PRE_SOLUTION)
-                {
-                    WriteSolution(pointsDict, presol);
-                    preres.WriteLine(pointsDict.Distance(NumberOfPoints));
-                }
+        //        if (TspInstanceConstants.WRITE_PRE_SOLUTION)
+        //        {
+        //            WriteSolution(pointsDict, presol);
+        //            preres.WriteLine(pointsDict.Distance(NumberOfPoints));
+        //        }
 
-                CalculateLocalSearch(pointsDict);
-            }
+        //        CalculateLocalSearchStopWatched(pointsDict);
+        //    }
 
-            WriteSolution(pointsDict, sol);
-            res.WriteLine(pointsDict.Distance(NumberOfPoints));
+        //    WriteSolution(pointsDict, sol);
+        //    res.WriteLine(pointsDict.Distance(NumberOfPoints));
 
-            sol.Close();
-            res.Close();
-            preres.Close();
-            presol.Close();
-        }
+        //    sol.Close();
+        //    res.Close();
+        //    preres.Close();
+        //    presol.Close();
+        //}
 
         public void CalculateHea()
         {
-            var res = new StreamWriter(@"D:\res_hea.txt", true);
-            var sol = new StreamWriter(@"D:\sol_hea.txt");
+            var res = new StreamWriter(TspInstanceConstants.RES_FILE_PATH, true);
+            var sol = new StreamWriter(TspInstanceConstants.SOL_FILE_PATH);
             IDictionary<byte, IList<Point>> result;
 
             using (new Timer("HEA - with groups production"))
@@ -125,7 +125,7 @@ namespace TO_1
             // we need to add starting results!! 
             IList<IDictionary<byte, IList<Point>>> results = new List<IDictionary<byte, IList<Point>>>();
 
-            for (var i = 0; i < TspInstanceConstants.HeaPopulationSize; i++)
+            for (var i = 0; i < TspInstanceConstants.HeaPopulationSize/2; i++)
             {
                 var pointsDict = CreateGroups(allPointsForInstance.ToList());
                 CalculateGroups(pointsDict);
@@ -138,7 +138,7 @@ namespace TO_1
             while (stopwatch.ElapsedMilliseconds < TspInstanceConstants.HeaRunTime)
             {
                 var mutated = new List<IDictionary<byte, IList<Point>>>();
-                //Console.WriteLine("HEA step at: {0}", stopwatch.ElapsedMilliseconds);
+                Console.WriteLine("HEA step at: {0}", stopwatch.ElapsedMilliseconds);
                 for (var k = 0; k < TspInstanceConstants.HeaNumberOfRecombinations; k++)
                 {
                     // recombinate two chosen results!;->
@@ -154,10 +154,10 @@ namespace TO_1
                     }
 
                     IList<Point> left;
-                    //Console.WriteLine("RECOMBINATION OF {0} AND {1}", firstIndex, secondIndex);
+                    Console.WriteLine("RECOMBINATION OF {0} AND {1}", firstIndex, secondIndex);
                     var commonPaths = Recombination(results[firstIndex], results[secondIndex], out left);
-                    //Console.WriteLine(" --- DONE ---");
-                    //Console.WriteLine("");
+                    Console.WriteLine(" --- DONE ---");
+                    Console.WriteLine("");
                     var preMutated = new List<IDictionary<byte, IList<Point>>>();
 
                     // Prepare start resolution...
@@ -166,11 +166,11 @@ namespace TO_1
                     {
                         preMutated.Add(PrepareForMutationByChance(commonPaths.OrderByDescending(t => t.Count).AsParallel().ToList()));
                     }
-                    //Console.WriteLine(" --- DONE ---");
-                    //Console.WriteLine("");
+                    Console.WriteLine(" --- DONE ---");
+                    Console.WriteLine("");
 
                     // now we mutate!!
-                    //Console.WriteLine("MUTATION PROCESS !!!");
+                    Console.WriteLine("MUTATION PROCESS !!!");
                     foreach (var preMutation in preMutated)
                     {
                         for (var j = 0; j < TspInstanceConstants.HeaNumberOfMutations; j++)
@@ -182,14 +182,16 @@ namespace TO_1
                     //Console.WriteLine("");
                 }
 
-                //Console.WriteLine("   LS - optimization of mutated at {0}", stopwatch.ElapsedMilliseconds);
+                Console.WriteLine("   LS - optimization of mutated at {0}", stopwatch.ElapsedMilliseconds);
                 foreach (var mutation in mutated)
                 {
                     // find the local optimum for each of evolved restult
                     CalculateLocalSearch(mutation);
+                    if (stopwatch.ElapsedMilliseconds < TspInstanceConstants.HeaRunTime)
+                        break;
                 }
-                //Console.WriteLine("     --- DONE ---");
-                //Console.WriteLine("");
+                Console.WriteLine("     --- DONE ---");
+                Console.WriteLine("");
 
                 // here we should run the LS on each of the results!
                 results = results.Concat(mutated)
@@ -348,13 +350,12 @@ namespace TO_1
                 result.Add(i, tmpList);
             }
 
-            var listIndex = 0;
+            var choosen = intersectedPaths[random.Next(intersectedPaths.Where(p => p.Count == intersectedPaths[0].Count).AsParallel().Count())];
             var startIndex = random.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
             var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
 
             while (intersectedPaths.Count > 0)
             {
-                var choosen = intersectedPaths[listIndex];
                 var possible = !choosen.Where((t, i) => result[groupIndex][(startIndex + i) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP] != null).Any();
 
                 if (possible)
@@ -369,11 +370,12 @@ namespace TO_1
 
                 if (intersectedPaths.Count > 0)
                 {
-                    // mozna tutaj robic losowanie grup o tych samych licznosciach!!!
-                    listIndex = random.Next(intersectedPaths.Where(p => p.Count == intersectedPaths[0].Count).AsParallel().Count());
                     //listIndex++;
                     startIndex = random.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
                     groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
+
+                    // mozna tutaj robic losowanie grup o tych samych licznosciach!!!
+                    choosen = intersectedPaths.Where(p => p.Count == intersectedPaths[0].Count).OrderBy(p => result[groupIndex].Distance(p)).AsParallel().First();
                 }
             }
 
@@ -428,6 +430,47 @@ namespace TO_1
             }
 
             return result;
+        }
+
+
+
+        private void CalculateLocalSearchStopWatched(IDictionary<byte, IList<Point>> pointsDict)
+        {
+            List<Point> pointsToBeMoved;
+            IList<Path> paths;
+            IList<Path> target;
+            //GeneratePointsToBeMoved( pointsDict,out pointsToBeMoved, out paths, out target);
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            while (stopwatch.ElapsedMilliseconds < TspInstanceConstants.HeaRunTime)
+            {
+                GeneratePointsToBeMoved(pointsDict, out pointsToBeMoved, out paths, out target);
+
+                long distance = paths.Sum(p => p.Distance);
+
+                target = FindBestAllocation(paths, pointsToBeMoved, target, null, 0, 2);
+                int pathsSum = target.Sum(p => p.Distance);
+
+                if (pathsSum < distance)
+                {
+                    paths = target;
+                    foreach (var path in paths)
+                    {
+                        byte currentGroup = path.points.First.Value.groupId;
+                        Point p = path.points.First.Value;
+                        int pos = pointsDict[currentGroup].IndexOf(p);
+
+                        for (int l = 1; l < path.points.Count - 1; l++)
+                        {
+                            path.points.ElementAt(l).groupId = currentGroup;
+                            pointsDict[currentGroup][(l + pos) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP] = path.points.ElementAt(l);
+                        }
+                    }
+                }
+
+            }
+
         }
 
         private void CalculateLocalSearch(IDictionary<byte, IList<Point>> pointsDict)
@@ -492,7 +535,7 @@ namespace TO_1
 
             //pointsToBeMoved.AddRange(allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(firstToMove)).Take(k - 1));
             Point tmp;
-            for (int i = 0; i < k-1; i++)
+            for (int i = 0; i < k - 1; i++)
             {
                 tmp = allPoints.Except(pointsToBeMoved).OrderBy(p => p.Distance(toBeMoved.centerOfMass)).First();
                 toBeMoved.AddPoint(tmp);
@@ -616,7 +659,7 @@ namespace TO_1
                     target[pathNr].points.AddLast(p);
                 }
 
-                if (paths[pathNr].points.Count == posNr +1)
+                if (paths[pathNr].points.Count == posNr + 1)
                 {
                     if (paths[pathNr].points.Count > target[pathNr].points.Count)
                         target[pathNr].points.AddLast(paths[pathNr].points.Last.Value);
@@ -641,7 +684,7 @@ namespace TO_1
                 {
                     var tmp = points.Except<Point>(new List<Point>() { item }).ToList();
 
-                    IList<Path> innerTarget = new List<Path>();;
+                    IList<Path> innerTarget = new List<Path>(); ;
                     foreach (var path in target)
                     {
                         innerTarget.Add(new Path(path));
@@ -711,7 +754,7 @@ namespace TO_1
             return pointsDict;
         }
 
-        private IDictionary<byte, IList<Point>> CreateGroups( IList<Point> allPoints)
+        private IDictionary<byte, IList<Point>> CreateGroups(IList<Point> allPoints)
         {
             IDictionary<byte, IList<Point>> pointsDict = new Dictionary<byte, IList<Point>>();
             Random rand = new Random();

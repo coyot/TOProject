@@ -11,10 +11,12 @@ namespace TO_1
         public const int K_VALUE = 4;
         public const bool WRITE_PRE_SOLUTION = true;
         public const byte NUMBER_OF_GROUPS = 4;
-        public const int NUMBER_OF_POINTS_PER_GROUP = 37;
+        public static int NUMBER_OF_POINTS_PER_GROUP;
+        public static string RES_FILE_PATH;
+        public static string SOL_FILE_PATH;
 
         public const int NUMBER_OF_MUTATIONS = 10;
-        public const int NUMBER_OF_PRE_MUTATIONS = 10;
+        public static int NUMBER_OF_PRE_MUTATIONS = 10;
         public const int NUMBER_OF_HEA_RUNS = 100;
 
         public const int HeaRunTime = 30000;
