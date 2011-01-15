@@ -12,38 +12,45 @@ namespace TO_1
 
         static void Main(string[] args)
         {
-            var instance = new TspInstance();
-            var instance2 = new TspInstance();
-            var instance3 = new TspInstance();
-            string fileName = args[0];
-            if (!File.Exists(fileName))
+            if (args.Count() != 3)
             {
-                Console.WriteLine("{0} does not exist.", fileName);
+                Console.WriteLine("Wrong number of arguments!");
+                Console.WriteLine("Usage: prog.exe [input_file] [sol_path] [res_path]");
                 return;
-            } 
-            using (StreamReader sr = File.OpenText(fileName))
-            {
-                String input;
-                while ((input = sr.ReadLine()) != null)
-                {
-                    instance.AddPoint(input.Split(';'));
-                    instance2.AddPoint(input.Split(';'));
-                    instance3.AddPoint(input.Split(';'));
-                }
-                Console.WriteLine("The end of the stream has been reached.");
             }
-            // START LOCAL SEARCH ALGORITHM
-            instance.Calculate();
-            //instance2.CalculateHea();
 
-            // START RANDOM LOCAL SEARCH ALGORITHM
-            //instance2.CalculateRandom();
+            TspInstanceConstants.SOL_FILE_PATH = args[1];
+            TspInstanceConstants.RES_FILE_PATH = args[2];
 
-            instance3.CalculateHea();
+            for (var i = 0; i < 2; i++)
+            {
+                var tspInstance = new TspInstance();
+                var tspInstance2 = new TspInstance();
+                var fileName = args[0];
 
-            Console.ReadLine();
+                if (!File.Exists(fileName))
+                {
+                    Console.WriteLine("{0} does not exist.", fileName);
+                    return;
+                }
+                var k = 0;
+                using (var sr = File.OpenText(fileName))
+                {
+                    String input;
+                    while ((input = sr.ReadLine()) != null)
+                    {
+                        tspInstance.AddPoint(input.Split(';'));
+                        tspInstance2.AddPoint(input.Split(';'));
+                        k++;
+                    }
+                }
 
+                TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP = k / 4;
+
+                tspInstance2.CalculateHea();
+            }
         }
+
     }
 
 
