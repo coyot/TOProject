@@ -64,9 +64,13 @@ namespace TO_1
                 if (t != null)
                 {
                     path.Add(t);
-                    if (index == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP-1 && skipped.Count != 0)
+                    if (index == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1)
                     {
-                        path.AddRange(skipped);
+                        // if we have some leftovers from the beggining of the list
+                        if (skipped.Count != 0)
+                        {
+                            path.AddRange(skipped);
+                        }
                         result.Add(path);
                         path = new List<Point>();
                     }
