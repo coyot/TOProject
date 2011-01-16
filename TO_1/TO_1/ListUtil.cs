@@ -56,7 +56,6 @@ namespace TO_1
                             skipped.Add(list[index]);
                             index++;
                         }
-                        continue;
                     }
                 }
 

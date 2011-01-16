@@ -13,6 +13,8 @@ namespace TO_1
             : base()
         {
             weight = 0;
+            x = 0;
+            y = 0;
         }
 
         public void AddPoint(Point point)

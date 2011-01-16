@@ -120,6 +120,7 @@ namespace TO_1
         private IDictionary<byte, IList<Point>> CalculateHeuristicEvolutionaryAlgorithm()
         {
             var stopwatch = new Stopwatch();
+            var random = new Random();
             stopwatch.Start();
 
             // we need to add starting results!! 
@@ -147,7 +148,6 @@ namespace TO_1
                     // draw two results to be recombinated
                     while (firstIndex == secondIndex)
                     {
-                        var random = new Random();
                         firstIndex = random.Next(TspInstanceConstants.HeaPopulationSize);
                         secondIndex = random.Next(TspInstanceConstants.HeaPopulationSize);
                     }
@@ -312,6 +312,11 @@ namespace TO_1
                 result.Add(i, tmpList);
             }
 
+            if (intersectedPaths.Count == 0)
+            {
+                return result;
+            }
+
             var choosen = intersectedPaths[random.Next(intersectedPaths.Where(p => p.Count == intersectedPaths[0].Count).AsParallel().Count())];
             var startIndex = random.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
             var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
@@ -353,72 +358,55 @@ namespace TO_1
         /// <returns>Result of the mutation proces</returns>
         private IDictionary<byte, IList<Point>> Mutate(IDictionary<byte, IList<Point>> result, IList<Point> leftPoints)
         {
+            var random = new Random();
+            var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
+
             while (leftPoints.Count > 0)
             {
-                var random = new Random();
-                var groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 // Choose a group where we can add something!
-                while (result[groupIndex].Where(p => p != null).Count() >= TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP)
+                while (result[groupIndex].Where(p => p != null).Count() == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP)
                 {
                     groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 }
 
                 // which point?
                 var point = leftPoints.OrderBy(p => p.Distance(result[groupIndex])).AsParallel().First();
-
-                var path = result[groupIndex].Divide().OrderByDescending(p => p.Distance(point)).First();
-
                 int index;
-
-                if (path.First().Distance(point) < path.Last().Distance(point))
+                if (result[groupIndex].Where(p => p != null).Count() != 0)
                 {
-                    index = result[groupIndex].IndexOf(path.First());
-                    if (index == 0)
+                    var path = result[groupIndex].Divide().OrderByDescending(p => p.Distance(point)).First();
+
+                    if (path.First().Distance(point) < path.Last().Distance(point))
                     {
-                        index = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1;
+                        index = result[groupIndex].IndexOf(path.First());
+                        if (index == 0)
+                        {
+                            index = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1;
+                        }
+                        else
+                        {
+                            index--;
+                        }
                     }
                     else
                     {
-                        index--;
+                        index = result[groupIndex].IndexOf(path.Last());
+                        if (index == (TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1))
+                        {
+                            index = 0;
+                        }
+                        else
+                        {
+                            index++;
+                        }
                     }
                 }
                 else
                 {
-                    index = result[groupIndex].IndexOf(path.Last());
-                    if (index == (TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1))
-                    {
-                        index = 0;
-                    }
-                    else
-                    {
-                        index++;
-                    }
+                    index = random.Next(TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP);
                 }
-
-                //var putItHere = 
-
-                // where to put the point? (Which empty place should we fill?)
-                //var skipSteps = random.Next(NumberOfPoints / TspInstanceConstants.NUMBER_OF_GROUPS);
-                //// simple iterator
-                //var i = 0;
                 // Id on the list where we will put choosen point
                 var putItHereIndex = index;
-
-
-                //while (skipSteps >= 0)
-                //{
-                //    // empty place - we count it in..
-                //    if (result[groupIndex][i] == null)
-                //    {
-                //        skipSteps--;
-                //        putItHereIndex = i;
-                //    }
-
-                //    // NEEEXT!
-                //    i = (i + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
-                //}
-
-                //var pointIndex = random.Next(leftPoints.Count);
 
                 result[groupIndex][putItHereIndex] = point.Clone();
                 result[groupIndex][putItHereIndex].groupId = groupIndex;
