@@ -10,6 +10,11 @@ namespace TO_1
             return CalculateCenterOfMass(first).Distance(CalculateCenterOfMass(second));
         }
 
+        public static int Distance(this IList<Point> list, Point point)
+        {
+            return CalculateCenterOfMass(list).Distance(point);
+        }
+
         public static int Distance(this Point point, IList<Point> list)
         {
             return point.Distance(CalculateCenterOfMass(list));
@@ -25,6 +30,56 @@ namespace TO_1
             }
 
             return massCenter;
+        }
+
+        /// <summary>
+        /// Divide the path into list of points - the divide point is the null entries.
+        /// </summary>
+        /// <param name="list">List ot be divided</param>
+        /// <returns>List of paths</returns>
+        public static IList<IList<Point>> Divide(this IList<Point> list)
+        {
+            var result = new List<IList<Point>>();
+            var path = new List<Point>();
+            var count = list.Count;
+            var index = 0;
+            var skipped = new List<Point>();
+
+            while (index < count)
+            {
+                if (index == 0)
+                {
+                    if (list[TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1] != null)
+                    {
+                        while (list[index] != null)
+                        {
+                            skipped.Add(list[index]);
+                            index++;
+                        }
+                        continue;
+                    }
+                }
+
+                var t = list[index];
+                if (t != null)
+                {
+                    path.Add(t);
+                    if (index == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP-1 && skipped.Count != 0)
+                    {
+                        path.AddRange(skipped);
+                        result.Add(path);
+                        path = new List<Point>();
+                    }
+                }
+                else if (path.Count != 0)
+                {
+                    result.Add(path);
+                    path = new List<Point>();
+                }
+                index++;
+            }
+
+            return result;
         }
 
         public static IList<IList<Point>> Clone(this IList<IList<Point>> source)

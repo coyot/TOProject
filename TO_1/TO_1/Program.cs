@@ -22,7 +22,7 @@ namespace TO_1
             TspInstanceConstants.RES_FILE_PATH = args[1];
             TspInstanceConstants.SOL_FILE_PATH = args[2];
 
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < 20; i++)
             {
                 var tspInstance = new TspInstance();
                 var tspInstance2 = new TspInstance();
@@ -39,7 +39,7 @@ namespace TO_1
                     String input;
                     while ((input = sr.ReadLine()) != null)
                     {
-                        tspInstance.AddPoint(input.Split(';'));
+                        //tspInstance.AddPoint(input.Split(';'));
                         tspInstance2.AddPoint(input.Split(';'));
                         k++;
                     }

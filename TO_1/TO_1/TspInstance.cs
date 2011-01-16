@@ -184,7 +184,7 @@ namespace TO_1
                     // find the local optimum for each of evolved restult
                     CalculateLocalSearch(forOptimization, stopwatch);
                 }
-                
+
                 results = results.Concat(mutated)
                                  .OrderBy(r => r.Distance(NumberOfPoints))
                                  .Take(TspInstanceConstants.HeaPopulationSize)
@@ -287,35 +287,6 @@ namespace TO_1
                 outerGroupIndex++;
                 outerPointIndex = 0;
             }
-            //int sum = result.SelectMany(list => list).Count(point => point != null);
-
-            //if (leftPoints.Count + sum != 100)
-            //{
-            //    foreach (var point in result.SelectMany(list => list))
-            //    {
-            //        if (leftPoints.Contains(point))
-            //        {
-            //            Console.WriteLine("THE BIG PROBLEM!");
-            //        }
-            //    }
-
-            //    foreach (var point in leftPoints)
-            //    {
-            //        Console.Write("{0}, ", point.id);
-            //    }
-
-            //    Console.WriteLine("");
-            //    Console.WriteLine("");
-            //    Console.WriteLine("");
-
-            //    foreach (var point in result.SelectMany(list => list))
-            //    {
-            //        Console.Write("{0}, ", point.id);
-            //    }
-
-            //    throw new ApplicationException("CO SIE DZIEJE?!");
-
-            //}
 
             return result;
         }
@@ -392,28 +363,61 @@ namespace TO_1
                     groupIndex = (byte)random.Next(TspInstanceConstants.NUMBER_OF_GROUPS);
                 }
 
-                // where to put the point? (Which empty place should we fill?)
-                var skipSteps = random.Next(NumberOfPoints / TspInstanceConstants.NUMBER_OF_GROUPS);
-                // simple iterator
-                var i = 0;
-                // Id on the list where we will put choosen point
-                var putItHereIndex = -1;
-
-                while (skipSteps >= 0)
-                {
-                    // empty place - we count it in..
-                    if (result[groupIndex][i] == null)
-                    {
-                        skipSteps--;
-                        putItHereIndex = i;
-                    }
-
-                    // NEEEXT!
-                    i = (i + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
-                }
-
                 // which point?
                 var point = leftPoints.OrderBy(p => p.Distance(result[groupIndex])).AsParallel().First();
+
+                var path = result[groupIndex].Divide().OrderByDescending(p => p.Distance(point)).First();
+
+                int index;
+
+                if (path.First().Distance(point) < path.Last().Distance(point))
+                {
+                    index = result[groupIndex].IndexOf(path.First());
+                    if (index == 0)
+                    {
+                        index = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
+                    }
+                    else
+                    {
+                        index--;
+                    }
+                }
+                else
+                {
+                    index = result[groupIndex].IndexOf(path.Last());
+                    if (index == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP -1)
+                    {
+                        index = 0;
+                    }
+                    else
+                    {
+                        index++;
+                    }
+                }
+
+                //var putItHere = 
+
+                // where to put the point? (Which empty place should we fill?)
+                //var skipSteps = random.Next(NumberOfPoints / TspInstanceConstants.NUMBER_OF_GROUPS);
+                //// simple iterator
+                //var i = 0;
+                // Id on the list where we will put choosen point
+                var putItHereIndex = index;
+
+
+                //while (skipSteps >= 0)
+                //{
+                //    // empty place - we count it in..
+                //    if (result[groupIndex][i] == null)
+                //    {
+                //        skipSteps--;
+                //        putItHereIndex = i;
+                //    }
+
+                //    // NEEEXT!
+                //    i = (i + 1) % TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
+                //}
+
                 //var pointIndex = random.Next(leftPoints.Count);
 
                 result[groupIndex][putItHereIndex] = point.Clone();
