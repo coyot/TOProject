@@ -375,7 +375,7 @@ namespace TO_1
                     index = result[groupIndex].IndexOf(path.First());
                     if (index == 0)
                     {
-                        index = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP;
+                        index = TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1;
                     }
                     else
                     {
@@ -385,7 +385,7 @@ namespace TO_1
                 else
                 {
                     index = result[groupIndex].IndexOf(path.Last());
-                    if (index == TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP -1)
+                    if (index == (TspInstanceConstants.NUMBER_OF_POINTS_PER_GROUP - 1))
                     {
                         index = 0;
                     }
