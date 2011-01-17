@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TO_1
 {
@@ -17,7 +15,6 @@ namespace TO_1
                 {
                     if (result[i][k-1] == null)
                     {
-                        Console.WriteLine("g{0} p{1} ERROR!", i, k-1);
                         return int.MaxValue;
                     }
                     distance[i] += result[i][k - 1].Distance(result[i][k]);
@@ -39,19 +36,7 @@ namespace TO_1
             {
                 var list = source[i];
 
-                var newList = new List<Point>();
-
-                foreach (var t in list)
-                {
-                    if (t != null)
-                    {
-                        newList.Add(t.Clone());
-                    }
-                    else
-                    {
-                        newList.Add(null);
-                    }
-                }
+                var newList = list.Select(t => t != null ? t.Clone() : null).ToList();
 
                 copy.Add(i, newList);
             }

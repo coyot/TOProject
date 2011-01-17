@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-
-namespace TO_1
+﻿namespace TO_1
 {
     public class Group
     {
@@ -15,17 +9,12 @@ namespace TO_1
         public Group(byte groupId)
         {
             id = groupId;
-            
             centerOfMass = new CenterOfMass();
-
         }
 
         public void AddPoint(Point point)
         {
             centerOfMass.AddPoint(point);
         }
-
-        
-        
     }
 }

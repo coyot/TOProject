@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace TO_1
+﻿namespace TO_1
 {
     public class CenterOfMass : Point
     {
